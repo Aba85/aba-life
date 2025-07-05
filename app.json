@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Aba Life Passageiro",
+    "slug": "aba-life-passageiro",
+    "version": "1.0.0",
+    "sdkVersion": "50.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "*/"
+    ],
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.borbastyle.abalife",
+      "versionCode": 1
+    },
+    "extra": {
+      "eas": {
+        "projectId": "94ce856c-bfa9-4aee-9d9d-45bd7397c74e"
+      }
+    }
+  }
+}

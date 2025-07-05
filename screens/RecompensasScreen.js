@@ -2,50 +2,57 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const RecompensasScreen = () => {
-  const elegivel = true;
-  const valorPorCorrida = 0.5;
-  const corridasUltimos30Dias = 4;
-
+export default function RecompensasScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Área de Recompensas</Text>
-      <Text style={styles.text}>Status: {elegivel ? 'Elegível' : 'Não elegível'}</Text>
+      <Text style={styles.title}>Suas Recompensas</Text>
       <Text style={styles.text}>
-        Corridas nos últimos 30 dias: {corridasUltimos30Dias}
+        Aqui você verá quanto está acumulando por corridas dos seus indicados.
       </Text>
-      <Text style={styles.text}>
-        Valor recebido por corrida dos indicados: R$ {valorPorCorrida.toFixed(2)}
-      </Text>
-      <Text style={styles.note}>
-        Para manter a elegibilidade, você precisa ter nota mínima de 4.7 e ao menos uma corrida nos últimos 30 dias.
-      </Text>
+      <View style={styles.box}>
+        <Text style={styles.amount}>R$ 42,50</Text>
+        <Text style={styles.label}>Total acumulado</Text>
+      </View>
+      <View style={styles.box}>
+        <Text style={styles.amount}>R$ 0,50</Text>
+        <Text style={styles.label}>Por corrida de indicado</Text>
+      </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    justifyContent: 'center',
     backgroundColor: '#fff',
+    justifyContent: 'center',
   },
   title: {
     fontSize: 24,
+    marginBottom: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
     textAlign: 'center',
   },
   text: {
     fontSize: 16,
-    marginBottom: 12,
+    marginBottom: 24,
+    textAlign: 'center',
   },
-  note: {
+  box: {
+    padding: 16,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 8,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  amount: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#007bff',
+  },
+  label: {
     fontSize: 14,
-    marginTop: 20,
-    color: '#555',
+    color: '#666',
   },
 });
-
-export default RecompensasScreen;

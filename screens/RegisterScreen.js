@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { InputField, PasswordField, CustomButton, Logo, LoadingOverlay } from '../components';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import { API_BASE_URL } from '../constants';
 
-const RegisterScreen = () => {
+export default function RegisterScreen() {
   const navigation = useNavigation();
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
-  const [nomeExibicao, setNomeExibicao] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-    if (!nome || !email || !senha || !confirmarSenha || !nomeExibicao) {
+    if (!nome || !email || !senha || !confirmarSenha) {
       Alert.alert('Erro', 'Preencha todos os campos.');
       return;
     }
@@ -24,96 +30,122 @@ const RegisterScreen = () => {
       return;
     }
 
-    setLoading(true);
-
     try {
-      const response = await fetch(`${API_BASE_URL}/usuarios/cadastro`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      setLoading(true);
+      const response = await axios.post(
+        'https://aba.life/api/usuarios',
+        {
           nome,
           email,
           senha,
-          nomeExibicao,
-        }),
-      });
+        }
+      );
 
-      const data = await response.json();
+      const { token } = response.data;
 
-      if (response.ok) {
-        Alert.alert('Sucesso', 'Conta criada com sucesso!');
-        navigation.navigate('Login');
+      if (token) {
+        await AsyncStorage.setItem('token', token);
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
       } else {
-        Alert.alert('Erro', data?.mensagem || 'Erro ao criar conta.');
+        Alert.alert('Erro', 'Cadastro falhou.');
       }
     } catch (error) {
-      Alert.alert('Erro', 'Não foi possível conectar. Tente novamente.');
+      console.error('Erro no cadastro:', error);
+      Alert.alert('Erro', 'Não foi possível concluir o cadastro.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
-      {loading && <LoadingOverlay message="Criando conta..." />}
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.container}>
-          <Logo />
-          <InputField
-            label="Nome completo"
-            value={nome}
-            onChangeText={setNome}
-            placeholder="Digite seu nome"
-          />
-          <InputField
-            label="Nome de exibição"
-            value={nomeExibicao}
-            onChangeText={setNomeExibicao}
-            placeholder="Como deseja ser chamado"
-          />
-          <InputField
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Digite seu email"
-            keyboardType="email-address"
-          />
-          <PasswordField
-            label="Senha"
-            value={senha}
-            onChangeText={setSenha}
-            placeholder="Digite sua senha"
-          />
-          <PasswordField
-            label="Confirmar senha"
-            value={confirmarSenha}
-            onChangeText={setConfirmarSenha}
-            placeholder="Repita sua senha"
-          />
-          <CustomButton title="Criar conta" onPress={handleRegister} />
-          <CustomButton
-            title="Voltar"
-            onPress={() => navigation.goBack()}
-            backgroundColor="#ccc"
-            textColor="#000"
-          />
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </>
+    <View style={styles.container}>
+      <Text style={styles.title}>Criar Conta</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Nome completo"
+        value={nome}
+        onChangeText={setNome}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        autoCapitalize="none"
+        keyboardType="email-address"
+        value={email}
+        onChangeText={setEmail}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Senha"
+        secureTextEntry
+        value={senha}
+        onChangeText={setSenha}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Confirmar senha"
+        secureTextEntry
+        value={confirmarSenha}
+        onChangeText={setConfirmarSenha}
+      />
+
+      <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
+        <Text style={styles.buttonText}>
+          {loading ? 'Cadastrando...' : 'Cadastrar'}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.link}>Já tenho uma conta</Text>
+      </TouchableOpacity>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
   container: {
-    padding: 20,
-    paddingBottom: 40,
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    marginBottom: 32,
+    textAlign: 'center',
+    color: '#1e90ff',
+  },
+  input: {
+    height: 48,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+  },
+  button: {
+    backgroundColor: '#1e90ff',
+    paddingVertical: 14,
+    borderRadius: 10,
+    marginBottom: 12,
+  },
+  buttonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  link: {
+    color: '#1e90ff',
+    textAlign: 'center',
+    fontSize: 14,
+    marginTop: 8,
   },
 });
-
-export default RegisterScreen;
