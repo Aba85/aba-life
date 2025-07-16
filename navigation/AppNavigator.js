@@ -12,10 +12,11 @@ import LoginScreen from '../screens/LoginScreen';
 import CadastroCompletoScreen from '../screens/CadastroCompletoScreen';
 import { useAuth } from '../services/auth/AuthContext';
 
-const Tab = createBottomTabNavigator();
+const AppTab = createBottomTabNavigator();
+const AuthTab = createBottomTabNavigator();
 
 const AppTabs = () => (
-  <Tab.Navigator
+  <AppTab.Navigator
     screenOptions={({ route }) => ({
       tabBarIcon: ({ color, size }) => {
         let iconName;
@@ -47,13 +48,22 @@ const AppTabs = () => (
       headerShown: false,
     })}
   >
-    <Tab.Screen name="Início" component={HomeScreen} />
-    <Tab.Screen name="Corrida" component={ChamadaCorridaScreen} />
-    <Tab.Screen name="Histórico" component={HistoricoScreen} />
-    <Tab.Screen name="Recompensas" component={RecompensasScreen} />
-    <Tab.Screen name="Configurações" component={ConfiguracoesScreen} />
-  </Tab.Navigator>
+    <AppTab.Screen name="Início" component={HomeScreen} />
+    <AppTab.Screen name="Corrida" component={ChamadaCorridaScreen} />
+    <AppTab.Screen name="Histórico" component={HistoricoScreen} />
+    <AppTab.Screen name="Recompensas" component={RecompensasScreen} />
+    <AppTab.Screen name="Configurações" component={ConfiguracoesScreen} />
+  </AppTab.Navigator>
 );
+
+const AuthStack = () => {
+  return (
+    <AuthTab.Navigator screenOptions={{ headerShown: false, tabBarStyle: { display: 'none' } }}>
+      <AuthTab.Screen name="Login" component={LoginScreen} />
+      <AuthTab.Screen name="CadastroCompleto" component={CadastroCompletoScreen} />
+    </AuthTab.Navigator>
+  );
+};
 
 const AppNavigator = () => {
   const { user } = useAuth();
@@ -65,13 +75,4 @@ const AppNavigator = () => {
   );
 };
 
-const AuthStack = () => {
-  return (
-    <Tab.Navigator screenOptions={{ headerShown: false, tabBarStyle: { display: 'none' } }}>
-      <Tab.Screen name="Login" component={LoginScreen} />
-      <Tab.Screen name="Cadastro" component={CadastroCompletoScreen} />
-    </Tab.Navigator>
-  );
-};
-
-export default AppNavigator;
+export default AppNavigator; 

@@ -3,11 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { AuthContext } from '../services/auth/AuthContext';
 
 export default function HomeScreen() {
-  const { usuario } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bem-vindo, {usuario?.nome || 'passageiro'}!</Text>
+      <Text style={styles.title}>Bem-vindo, {user?.nome || 'passageiro'}!</Text>
 
       <TouchableOpacity style={styles.botao}>
         <Text style={styles.botaoTexto}>Chamar Corrida</Text>

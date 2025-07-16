@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
-import { AuthContext } from '../contexts/AuthContext';
+import { AuthContext } from '../services/auth/AuthContext';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
