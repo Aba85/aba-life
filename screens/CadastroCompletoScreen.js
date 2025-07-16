@@ -49,7 +49,7 @@ export default function CadastroCompletoScreen({ navigation }) {
     }
 
     try {
-      const response = await axios.post('https://seu-backend-url/usuarios/cadastrar', {
+      const response = await axios.post('https://backend.abalife.com.br/usuarios/cadastrar', {
         nome,
         email,
         cpf,
