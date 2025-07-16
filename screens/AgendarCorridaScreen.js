@@ -1,82 +1,80 @@
-
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 
-const AgendarCorridaScreen = () => {
-  const [origem, setOrigem] = useState('');
-  const [destino, setDestino] = useState('');
-  const [dataHora, setDataHora] = useState(new Date());
-  const [mostrarPicker, setMostrarPicker] = useState(false);
+export default function AgendarCorridaScreen() {
+  const [data, setData] = useState('');
+  const [hora, setHora] = useState('');
+  const [local, setLocal] = useState('');
 
-  const agendar = () => {
-    if (!origem || !destino) {
-      Alert.alert('Campos obrigatórios', 'Preencha origem e destino');
-      return;
+  const handleAgendar = () => {
+    if (!data || !hora || !local) {
+      return Alert.alert('Preencha todos os campos');
     }
 
-    console.log('Corrida agendada:', origem, destino, dataHora);
-    Alert.alert('Sucesso', 'Corrida agendada com sucesso!');
+    Alert.alert('Corrida agendada com sucesso!');
+    setData('');
+    setHora('');
+    setLocal('');
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Agendar Corrida</Text>
+      <Text style={styles.titulo}>Agendar Corrida</Text>
+
       <TextInput
+        placeholder="Data (DD/MM/AAAA)"
         style={styles.input}
-        placeholder="Origem"
-        value={origem}
-        onChangeText={setOrigem}
+        value={data}
+        onChangeText={setData}
       />
       <TextInput
+        placeholder="Hora (HH:MM)"
         style={styles.input}
-        placeholder="Destino"
-        value={destino}
-        onChangeText={setDestino}
+        value={hora}
+        onChangeText={setHora}
       />
-      <Button title="Selecionar Data e Hora" onPress={() => setMostrarPicker(true)} />
-      {mostrarPicker && (
-        <DateTimePicker
-          value={dataHora}
-          mode="datetime"
-          display="default"
-          onChange={(event, selectedDate) => {
-            setMostrarPicker(false);
-            if (selectedDate) setDataHora(selectedDate);
-          }}
-        />
-      )}
-      <Text style={styles.info}>Data e hora selecionada: {dataHora.toLocaleString()}</Text>
-      <Button title="Agendar Corrida" onPress={agendar} />
+      <TextInput
+        placeholder="Local de embarque"
+        style={styles.input}
+        value={local}
+        onChangeText={setLocal}
+      />
+
+      <TouchableOpacity style={styles.botao} onPress={handleAgendar}>
+        <Text style={styles.botaoTexto}>Agendar</Text>
+      </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
+    padding: 20,
     flex: 1,
-    padding: 24,
-    justifyContent: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF',
   },
-  title: {
+  titulo: {
     fontSize: 22,
+    color: '#0066CC',
     fontWeight: 'bold',
     marginBottom: 20,
-    textAlign: 'center',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#CCC',
     padding: 12,
-    marginBottom: 16,
     borderRadius: 8,
+    marginBottom: 12,
   },
-  info: {
-    fontSize: 14,
-    marginVertical: 12,
-    textAlign: 'center',
+  botao: {
+    backgroundColor: '#0066CC',
+    padding: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  botaoTexto: {
+    color: '#FFF',
+    fontWeight: 'bold',
   },
 });
-
-export default AgendarCorridaScreen;

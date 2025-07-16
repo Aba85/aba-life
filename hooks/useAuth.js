@@ -1,36 +1,14 @@
-import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// apps/passageiro/hooks/useAuth.js
+
+import { useContext } from 'react';
+import { AuthContext } from '../services/auth/AuthContext';
 
 export const useAuth = () => {
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const context = useContext(AuthContext);
 
-  useEffect(() => {
-    const loadToken = async () => {
-      const storedToken = await AsyncStorage.getItem('token');
-      if (storedToken) {
-        setToken(storedToken);
-      }
-      setLoading(false);
-    };
-    loadToken();
-  }, []);
+  if (!context) {
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+  }
 
-  const login = async (newToken) => {
-    await AsyncStorage.setItem('token', newToken);
-    setToken(newToken);
-  };
-
-  const logout = async () => {
-    await AsyncStorage.removeItem('token');
-    setToken(null);
-  };
-
-  return {
-    token,
-    loading,
-    login,
-    logout,
-    isAuthenticated: !!token,
-  };
+  return context;
 };

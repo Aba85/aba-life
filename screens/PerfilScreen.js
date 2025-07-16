@@ -1,65 +1,52 @@
+import React, { useContext } from 'react';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { AuthContext } from '../services/auth/AuthContext';
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
-
-const PerfilScreen = () => {
-  const [nome, setNome] = useState('Fulano da Silva');
-  const [email, setEmail] = useState('fulano@email.com');
-  const [telefone, setTelefone] = useState('11999999999');
-
-  const salvarPerfil = () => {
-    // Lógica para salvar dados do perfil
-    console.log('Perfil atualizado:', { nome, email, telefone });
-  };
+export default function PerfilScreen() {
+  const { usuario } = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Seu Perfil</Text>
-      <TextInput
-        style={styles.input}
-        value={nome}
-        onChangeText={setNome}
-        placeholder="Nome completo"
-      />
-      <TextInput
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        value={telefone}
-        onChangeText={setTelefone}
-        placeholder="Telefone"
-        keyboardType="phone-pad"
-      />
-      <Button title="Salvar Alterações" onPress={salvarPerfil} />
+      <Text style={styles.titulo}>Seu Perfil</Text>
+
+      {usuario?.foto && (
+        <Image
+          source={{ uri: `data:image/jpeg;base64,${usuario.foto}` }}
+          style={styles.foto}
+        />
+      )}
+
+      <Text style={styles.info}>Nome: {usuario?.nome}</Text>
+      <Text style={styles.info}>E-mail: {usuario?.email}</Text>
+      <Text style={styles.info}>CPF: {usuario?.cpf}</Text>
+      <Text style={styles.info}>Telefone: {usuario?.telefone}</Text>
+      <Text style={styles.info}>Endereço: {usuario?.rua}, {usuario?.bairro}, {usuario?.cidade}-{usuario?.estado}</Text>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
+    padding: 20,
     flex: 1,
-    padding: 24,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
+    backgroundColor: '#FFF',
   },
-  title: {
-    fontSize: 24,
+  titulo: {
+    fontSize: 22,
     fontWeight: 'bold',
+    color: '#0066CC',
     marginBottom: 20,
-    textAlign: 'center',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
-    marginBottom: 16,
-    borderRadius: 8,
+  info: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 8,
+  },
+  foto: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignSelf: 'center',
+    marginBottom: 20,
   },
 });
-
-export default PerfilScreen;

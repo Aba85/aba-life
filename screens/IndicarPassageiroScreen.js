@@ -1,62 +1,79 @@
-
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Clipboard, Alert } from 'react-native';
+import { useAuth } from '../hooks/useAuth';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const IndicarPassageiroScreen = () => {
-  const [nome, setNome] = useState('');
-  const [telefone, setTelefone] = useState('');
+  const { user } = useAuth();
+  const codigo = user?.codigoIndicacao || 'ABC123';
 
-  const gerarCodigo = () => {
-    const codigo = Math.random().toString(36).substr(2, 8).toUpperCase();
-    Alert.alert('Código gerado', `Compartilhe este código com o indicado: ${codigo}`);
-  };
-
-  const indicar = () => {
-    console.log('Passageiro indicado:', nome, telefone);
-    gerarCodigo();
+  const copiarCodigo = () => {
+    Clipboard.setString(codigo);
+    Alert.alert('Copiado!', 'Código de indicação copiado para a área de transferência.');
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Indicar um Passageiro</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nome do indicado"
-        value={nome}
-        onChangeText={setNome}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Telefone do indicado"
-        value={telefone}
-        onChangeText={setTelefone}
-        keyboardType="phone-pad"
-      />
-      <Button title="Gerar Código de Indicação" onPress={indicar} />
+    <View style={estilos.container}>
+      <Text style={estilos.titulo}>Indique e Ganhe</Text>
+
+      <Text style={estilos.texto}>
+        Compartilhe seu código de indicação abaixo com amigos. Você receberá recompensas por cada
+        corrida finalizada por eles, se estiver elegível.
+      </Text>
+
+      <View style={estilos.codigoBox}>
+        <Text style={estilos.codigo}>{codigo}</Text>
+        <TouchableOpacity onPress={copiarCodigo}>
+          <Ionicons name="copy" size={24} color="#007bff" />
+        </TouchableOpacity>
+      </View>
+
+      <Text style={estilos.detalhe}>
+        Para estar elegível, você precisa manter uma nota mínima de 4.70 e ter feito pelo menos uma
+        corrida nos últimos 30 dias.
+      </Text>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const estilos = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    justifyContent: 'center',
     backgroundColor: '#fff',
+    justifyContent: 'center',
   },
-  title: {
+  titulo: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: 'center',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
-    marginBottom: 16,
-    borderRadius: 8,
+  texto: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  codigoBox: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#eef1f5',
+    padding: 16,
+    borderRadius: 10,
+    marginBottom: 24,
+  },
+  codigo: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginRight: 12,
+  },
+  detalhe: {
+    fontSize: 13,
+    color: '#555',
+    textAlign: 'center',
+    paddingHorizontal: 8,
   },
 });
 
-export default IndicarPassageiroScreen;
+export default IndicarPassageiroScreen; 

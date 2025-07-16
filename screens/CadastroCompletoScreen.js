@@ -1,134 +1,182 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   TextInput,
-  TouchableOpacity,
+  Button,
+  Text,
   StyleSheet,
   Alert,
+  TouchableOpacity,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import API_URL from '../utils/config';
+import axios from 'axios';
 
-export default function CadastroCompletoScreen() {
-  const route = useRoute();
-  const navigation = useNavigation();
-  const { usuarioId } = route.params;
-
+export default function CadastroCompletoScreen({ navigation }) {
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
   const [cpf, setCpf] = useState('');
-  const [endereco, setEndereco] = useState('');
-  const [nomeExibicao, setNomeExibicao] = useState('');
-  const [cartao, setCartao] = useState('');
+  const [celular, setCelular] = useState('');
+  const [codigoIndicacao, setCodigoIndicacao] = useState('');
+  const [senha, setSenha] = useState('');
+  const [confirmaSenha, setConfirmaSenha] = useState('');
+  const [showSenha, setShowSenha] = useState(false);
+  const [showConfirmaSenha, setShowConfirmaSenha] = useState(false);
 
-  const handleFinalizarCadastro = async () => {
-    if (!cpf || !endereco || !nomeExibicao || !cartao) {
-      Alert.alert('Erro', 'Preencha todos os campos.');
+  const validarCPF = (cpf) => /^\d{11}$/.test(cpf);
+
+  const handleCadastro = async () => {
+    if (
+      !nome.trim() || !email.trim() || !cpf.trim() ||
+      !celular.trim() || !senha.trim() || !confirmaSenha.trim()
+    ) {
+      Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    if (!validarCPF(cpf)) {
+      Alert.alert('Erro', 'CPF inválido. Deve conter 11 dígitos numéricos.');
+      return;
+    }
+
+    if (senha.length < 6) {
+      Alert.alert('Erro', 'Senha deve ter no mínimo 6 caracteres.');
+      return;
+    }
+
+    if (senha !== confirmaSenha) {
+      Alert.alert('Erro', 'As senhas não coincidem.');
       return;
     }
 
     try {
-      const response = await fetch(${API_URL}/usuarios/cadastro-completo/${usuarioId}, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cpf,
-          endereco,
-          nome_exibicao: nomeExibicao,
-          cartao,
-        }),
+      const response = await axios.post('https://seu-backend-url/usuarios/cadastrar', {
+        nome,
+        email,
+        cpf,
+        celular,
+        codigoIndicacao: codigoIndicacao.trim() || null,
+        senha,
+        perfil: 'passageiro',
       });
 
-      if (response.ok) {
-        Alert.alert('Sucesso', 'Cadastro finalizado com sucesso!');
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
+      if (response.status === 201) {
+        Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
+        navigation.navigate('Login');
       } else {
-        const data = await response.json();
-        Alert.alert('Erro', data.message || 'Não foi possível finalizar o cadastro.');
+        Alert.alert('Erro', 'Erro ao cadastrar.');
       }
     } catch (error) {
-      Alert.alert('Erro', 'Erro de conexão com o servidor.');
+      if (error.response) {
+        Alert.alert('Erro', error.response.data.erro || 'Erro no cadastro.');
+      } else {
+        Alert.alert('Erro', 'Erro de conexão. Tente novamente.');
+      }
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Cadastro Completo</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Cadastro Completo</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="CPF"
-          value={cpf}
-          onChangeText={setCpf}
-          keyboardType="numeric"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Endereço"
-          value={endereco}
-          onChangeText={setEndereco}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Nome de exibição"
-          value={nomeExibicao}
-          onChangeText={setNomeExibicao}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Número do cartão"
-          value={cartao}
-          onChangeText={setCartao}
-          keyboardType="numeric"
-        />
+      <TextInput
+        placeholder="Nome completo"
+        style={styles.input}
+        value={nome}
+        onChangeText={setNome}
+      />
+      <TextInput
+        placeholder="Email"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        style={styles.input}
+        value={email}
+        onChangeText={setEmail}
+      />
+      <TextInput
+        placeholder="CPF (apenas números)"
+        keyboardType="number-pad"
+        style={styles.input}
+        value={cpf}
+        onChangeText={setCpf}
+        maxLength={11}
+      />
+      <TextInput
+        placeholder="Celular"
+        keyboardType="phone-pad"
+        style={styles.input}
+        value={celular}
+        onChangeText={setCelular}
+      />
+      <TextInput
+        placeholder="Código de indicação (opcional)"
+        style={styles.input}
+        value={codigoIndicacao}
+        onChangeText={setCodigoIndicacao}
+      />
 
-        <TouchableOpacity style={styles.button} onPress={handleFinalizarCadastro}>
-          <Text style={styles.buttonText}>Finalizar Cadastro</Text>
+      <View style={styles.passwordContainer}>
+        <TextInput
+          placeholder="Senha"
+          secureTextEntry={!showSenha}
+          style={[styles.input, { flex: 1 }]}
+          value={senha}
+          onChangeText={setSenha}
+        />
+        <TouchableOpacity
+          onPress={() => setShowSenha(!showSenha)}
+          style={styles.eyeButton}
+        >
+          <Text>{showSenha ? '🙈' : '👁️'}</Text>
         </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </View>
+
+      <View style={styles.passwordContainer}>
+        <TextInput
+          placeholder="Confirme a senha"
+          secureTextEntry={!showConfirmaSenha}
+          style={[styles.input, { flex: 1 }]}
+          value={confirmaSenha}
+          onChangeText={setConfirmaSenha}
+        />
+        <TouchableOpacity
+          onPress={() => setShowConfirmaSenha(!showConfirmaSenha)}
+          style={styles.eyeButton}
+        >
+          <Text>{showConfirmaSenha ? '🙈' : '👁️'}</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Button title="Cadastrar" onPress={handleCadastro} />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
+    padding: 20,
+    paddingBottom: 40,
     backgroundColor: '#fff',
-    flexGrow: 1,
-    justifyContent: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
+    marginBottom: 20,
     fontWeight: 'bold',
-    marginBottom: 32,
-    alignSelf: 'center',
+    textAlign: 'center',
+    color: '#004aad',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
+    borderColor: '#004aad',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
   },
-  button: {
-    backgroundColor: '#28a745',
-    padding: 16,
-    borderRadius: 8,
+  passwordContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 12,
+    marginBottom: 15,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+  eyeButton: {
+    padding: 10,
   },
-});
+}); 

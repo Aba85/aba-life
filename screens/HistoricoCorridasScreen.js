@@ -1,35 +1,80 @@
-
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HistoricoCorridasScreen = () => {
   const [corridas, setCorridas] = useState([]);
+  const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    // Simulação de carregamento do histórico
-    setCorridas([
-      { id: '1', origem: 'Rua A', destino: 'Av. B', data: '01/07/2025', valor: 'R$ 12,00' },
-      { id: '2', origem: 'Av. X', destino: 'Rua Y', data: '28/06/2025', valor: 'R$ 18,50' },
-      { id: '3', origem: 'Praça 1', destino: 'Terminal Z', data: '25/06/2025', valor: 'R$ 22,00' },
-    ]);
+    const carregarHistorico = async () => {
+      const token = await AsyncStorage.getItem('token');
+
+      try {
+        const response = await fetch('https://api.abalife.com.br/corridas/historico', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) throw new Error('Erro ao buscar histórico');
+
+        const data = await response.json();
+        setCorridas(data);
+      } catch (error) {
+        Alert.alert('Erro', 'Não foi possível carregar o histórico de corridas.');
+      } finally {
+        setCarregando(false);
+      }
+    };
+
+    carregarHistorico();
   }, []);
 
   const renderItem = ({ item }) => (
-    <View style={styles.item}>
-      <Text style={styles.label}>De: {item.origem}</Text>
-      <Text style={styles.label}>Para: {item.destino}</Text>
-      <Text style={styles.details}>Data: {item.data} - Valor: {item.valor}</Text>
+    <View style={styles.card}>
+      <Text style={styles.detalhe}>Origem: {item.origem}</Text>
+      <Text style={styles.detalhe}>Destino: {item.destino}</Text>
+      <Text style={styles.detalhe}>Data: {item.data}</Text>
+      <Text style={styles.detalhe}>Valor: R$ {item.valor.toFixed(2)}</Text>
+      <Text style={styles.detalhe}>Motorista: {item.motorista}</Text>
+      <Text style={styles.detalhe}>Status: {item.status}</Text>
     </View>
   );
 
+  if (carregando) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#007bff" />
+      </View>
+    );
+  }
+
+  if (corridas.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.mensagem}>Nenhuma corrida encontrada.</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Histórico de Corridas</Text>
+      <Text style={styles.titulo}>Histórico de Corridas</Text>
       <FlatList
         data={corridas}
+        keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ paddingBottom: 40 }}
       />
     </View>
   );
@@ -37,32 +82,30 @@ const HistoricoCorridasScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    padding: 24,
     flex: 1,
-    padding: 20,
     backgroundColor: '#fff',
   },
-  title: {
+  titulo: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 24,
     textAlign: 'center',
   },
-  item: {
+  card: {
+    backgroundColor: '#f1f1f1',
     padding: 16,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    marginBottom: 12,
-    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    marginBottom: 16,
   },
-  label: {
+  detalhe: {
+    fontSize: 15,
+    marginBottom: 4,
+  },
+  mensagem: {
     fontSize: 16,
-    fontWeight: '500',
-  },
-  details: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
+    textAlign: 'center',
+    color: '#555',
   },
 });
 

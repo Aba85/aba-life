@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "356205325788",
+    "project_id": "aba-life",
+    "storage_bucket": "aba-life.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:356205325788:android:0ac502e89f4b245325f319",
+        "android_client_info": {
+          "package_name": "com.abalife.passageiro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOzeDy0AXjhHemZYNCpuW5QC25eLkJw8g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

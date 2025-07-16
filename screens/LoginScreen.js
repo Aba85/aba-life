@@ -1,131 +1,97 @@
-import React, { useState } from 'react';
+// screens/LoginScreen.js
+import React, { useState, useContext } from 'react';
 import {
   View,
-  Text,
   TextInput,
-  TouchableOpacity,
+  Button,
+  Text,
   StyleSheet,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
+  TouchableOpacity
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import API_URL from '../utils/config';
+import { AuthContext } from '../services/auth/AuthContext';
+import axios from 'axios';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const navigation = useNavigation();
+  const [showSenha, setShowSenha] = useState(false);
+  const { signIn } = useContext(AuthContext);
 
   const handleLogin = async () => {
+    if (!email.trim() || !senha.trim()) {
+      Alert.alert('Erro', 'Por favor, preencha email e senha.');
+      return;
+    }
+
     try {
-      const response = await fetch(${API_URL}/usuarios/login, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha }),
+      const response = await axios.post('https://seu-backend-url/usuarios/login', {
+        email,
+        senha,
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        await AsyncStorage.setItem('token', data.token);
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
+      if (response.status === 200) {
+        signIn(response.data.usuario, response.data.token);
       } else {
-        Alert.alert('Erro', data.message || 'E-mail ou senha incorretos');
+        Alert.alert('Erro', 'Falha ao realizar login.');
       }
     } catch (error) {
-      Alert.alert('Erro', 'Não foi possível conectar ao servidor.');
+      if (error.response) {
+        Alert.alert('Erro', error.response.data.erro || 'Erro no login.');
+      } else {
+        Alert.alert('Erro', 'Erro de conexão. Tente novamente.');
+      }
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <Text style={styles.title}>Login</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Entrar</Text>
 
       <TextInput
+        placeholder="Email"
+        keyboardType="email-address"
+        autoCapitalize="none"
         style={styles.input}
-        placeholder="E-mail"
         value={email}
         onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Senha"
-        value={senha}
-        onChangeText={setSenha}
-        secureTextEntry
       />
 
-      <TouchableOpacity onPress={() => Alert.alert('Em breve', 'Função de recuperação de senha ainda será implementada.')}>
-        <Text style={styles.forgot}>Esqueceu a senha?</Text>
-      </TouchableOpacity>
+      <View style={styles.passwordContainer}>
+        <TextInput
+          placeholder="Senha"
+          secureTextEntry={!showSenha}
+          style={[styles.input, { flex: 1 }]}
+          value={senha}
+          onChangeText={setSenha}
+        />
+        <TouchableOpacity
+          onPress={() => setShowSenha(!showSenha)}
+          style={styles.eyeButton}
+        >
+          <Text>{showSenha ? '🙈' : '👁️'}</Text>
+        </TouchableOpacity>
+      </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Entrar</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate('Cadastro')}>
-        <Text style={styles.registerText}>
-          Ainda não tem conta? <Text style={styles.registerLink}>Cadastre-se aqui</Text>
-        </Text>
-      </TouchableOpacity>
-    </KeyboardAvoidingView>
+      <Button title="Entrar" onPress={handleLogin} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    backgroundColor: '#fff',
+    flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#e8f0fe'
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 32,
-    alignSelf: 'center',
+    fontSize: 24, marginBottom: 20, fontWeight: 'bold', color: '#2d4a9d', textAlign: 'center'
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
+    borderWidth: 1, borderColor: '#ccc', padding: 10, marginBottom: 15, borderRadius: 6, backgroundColor: '#fff'
   },
-  forgot: {
-    color: '#007BFF',
-    marginBottom: 20,
-    alignSelf: 'flex-end',
+  passwordContainer: {
+    flexDirection: 'row', alignItems: 'center', marginBottom: 15
   },
-  button: {
-    backgroundColor: '#28a745',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 24,
+  eyeButton: {
+    padding: 10,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  registerText: {
-    textAlign: 'center',
-    fontSize: 14,
-    color: '#333',
-  },
-  registerLink: {
-    color: '#007BFF',
-    fontWeight: 'bold',
-  },
-});
+}); 

@@ -1,58 +1,91 @@
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+const RecompensasScreen = () => {
+  const [recompensas, setRecompensas] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-export default function RecompensasScreen() {
+  useEffect(() => {
+    const buscarRecompensas = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const response = await axios.get('https://back.abalife.com.br/recompensas/status', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setRecompensas(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar recompensas:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    buscarRecompensas();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
+
+  if (!recompensas) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.mensagem}>Erro ao carregar recompensas.</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Suas Recompensas</Text>
-      <Text style={styles.text}>
-        Aqui você verá quanto está acumulando por corridas dos seus indicados.
-      </Text>
-      <View style={styles.box}>
-        <Text style={styles.amount}>R$ 42,50</Text>
-        <Text style={styles.label}>Total acumulado</Text>
-      </View>
-      <View style={styles.box}>
-        <Text style={styles.amount}>R$ 0,50</Text>
-        <Text style={styles.label}>Por corrida de indicado</Text>
-      </View>
+      <Text style={styles.titulo}>Recompensas</Text>
+
+      <Text style={styles.label}>Você está elegível?</Text>
+      <Text style={styles.valor}>{recompensas.ehElegivel ? '✅ Sim' : '❌ Não'}</Text>
+
+      <Text style={styles.label}>Valor por corrida dos indicados:</Text>
+      <Text style={styles.valor}>R$ {recompensas.valorPorCorrida.toFixed(2)}</Text>
+
+      <Text style={styles.label}>Total de corridas no mês:</Text>
+      <Text style={styles.valor}>{recompensas.totalCorridasUltimos30Dias}</Text>
+
+      <Text style={styles.label}>Total de indicados ativos:</Text>
+      <Text style={styles.valor}>{recompensas.totalIndicadosAtivos}</Text>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
     backgroundColor: '#fff',
-    justifyContent: 'center',
+    padding: 20,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  text: {
-    fontSize: 16,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  box: {
-    padding: 16,
-    backgroundColor: '#f2f2f2',
-    borderRadius: 8,
-    marginBottom: 16,
-    alignItems: 'center',
-  },
-  amount: {
+  titulo: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#007bff',
+    marginBottom: 20,
   },
   label: {
-    fontSize: 14,
+    fontWeight: 'bold',
+    marginTop: 15,
+  },
+  valor: {
+    fontSize: 16,
+    marginTop: 5,
+  },
+  mensagem: {
+    textAlign: 'center',
     color: '#666',
+    fontSize: 16,
   },
 });
+
+export default RecompensasScreen;

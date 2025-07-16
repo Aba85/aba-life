@@ -1,19 +1,16 @@
-
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { AuthContext } from '../services/auth/AuthContext';
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen() {
+  const { usuario } = useContext(AuthContext);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bem-vindo ao Aba Life</Text>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Corridas')}>
-        <Text style={styles.buttonText}>Minhas Corridas</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Recompensas')}>
-        <Text style={styles.buttonText}>Recompensas</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Convide')}>
-        <Text style={styles.buttonText}>Convide Amigos</Text>
+      <Text style={styles.title}>Bem-vindo, {usuario?.nome || 'passageiro'}!</Text>
+
+      <TouchableOpacity style={styles.botao}>
+        <Text style={styles.botaoTexto}>Chamar Corrida</Text>
       </TouchableOpacity>
     </View>
   );
@@ -21,26 +18,25 @@ export default function HomeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
+    padding: 20,
     flex: 1,
-    padding: 24,
     justifyContent: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF',
   },
   title: {
-    fontSize: 26,
-    marginBottom: 32,
-    textAlign: 'center',
-    fontWeight: 'bold',
+    fontSize: 24,
+    marginBottom: 24,
+    color: '#0066CC',
   },
-  button: {
-    backgroundColor: '#007bff',
-    paddingVertical: 14,
-    borderRadius: 8,
-    marginBottom: 16,
+  botao: {
+    backgroundColor: '#0066CC',
+    padding: 16,
+    borderRadius: 10,
+    alignItems: 'center',
   },
-  buttonText: {
-    color: '#fff',
-    textAlign: 'center',
+  botaoTexto: {
+    color: '#FFF',
     fontSize: 16,
+    fontWeight: 'bold',
   },
 });

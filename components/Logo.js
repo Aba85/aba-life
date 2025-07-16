@@ -1,14 +1,11 @@
 import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
+import logo from '../assets/logo.png'; // Corrigido: import direto da imagem
 
 const Logo = () => {
   return (
     <View style={styles.container}>
-      <Image
-        source={require('../assets/logo.png')}
-        style={styles.logo}
-        resizeMode="contain"
-      />
+      <Image source={logo} style={styles.logo} resizeMode="contain" />
     </View>
   );
 };
@@ -16,11 +13,11 @@ const Logo = () => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginVertical: 24,
+    marginBottom: 30,
   },
   logo: {
-    width: 180,
-    height: 60,
+    width: 200,
+    height: 100,
   },
 });
 

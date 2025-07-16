@@ -1,22 +1,23 @@
-# Aba Life Passageiro
+# Aba Life - App do Passageiro
 
-Aplicativo do passageiro para o sistema de mobilidade Aba Life.
+Aplicativo oficial do passageiro da plataforma Aba Life.
 
 ## Funcionalidades
-- Cadastro e login de usuários
-- Tela de boas-vindas
-- Navegação entre telas
-- Integração com backend real
-- Armazenamento de token com AsyncStorage
 
-## Scripts disponíveis
+- Cadastro com validação por CPF, SMS e CEP
+- Login com autenticação e token persistente
+- Chamadas de corrida com backend integrado
+- Recompensas dinâmicas
+- Histórico de corridas
+- Perfil com foto e dados
+- Indicação por código
+- Avaliação de motoristas
+- Proteção de privacidade
+- Suporte a terceiros e agendamento
 
-### `npm start`
-Inicia o projeto com Expo.
+## Scripts
 
-### `npm run android`
-Instala e executa o app em um dispositivo Android.
-
----
-
-Desenvolvido com ❤️ para revolucionar a mobilidade.
+```bash
+npm install
+npx expo start
+npx eas build -p android --profile production

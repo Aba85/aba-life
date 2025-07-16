@@ -1,7 +1,7 @@
 {
-  "name": "aba-life-passageiro",
+  "name": "passageiro",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -9,20 +9,37 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "1.21.0",
-    "@react-navigation/native": "6.1.9",
-    "@react-navigation/native-stack": "6.9.17",
-    "expo": "~50.0.0",
-    "expo-font": "~11.0.0",
-    "expo-status-bar": "~1.11.1",
-    "react": "18.2.0",
-    "react-native": "0.73.6",
-    "react-native-safe-area-context": "4.5.2",
-    "react-native-screens": "3.30.0",
-    "@expo/vector-icons": "^14.0.0"
+    "@expo/metro-runtime": "~5.0.4",
+    "@react-native-async-storage/async-storage": "2.1.2",
+    "@react-native-community/datetimepicker": "8.4.1",
+    "@react-navigation/bottom-tabs": "^7.4.2",
+    "@react-navigation/native": "^7.1.14",
+    "@react-navigation/stack": "^7.4.2",
+    "axios": "^1.10.0",
+    "expo": "~53.0.0",
+    "expo-constants": "~17.1.7",
+    "expo-device": "^7.1.4",
+    "expo-image-picker": "~16.1.4",
+    "expo-notifications": "~0.31.4",
+    "expo-status-bar": "~2.2.3",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-native": "0.79.5",
+    "react-native-gesture-handler": "~2.24.0",
+    "react-native-pager-view": "6.7.1",
+    "react-native-reanimated": "~3.17.4",
+    "react-native-safe-area-context": "5.4.0",
+    "react-native-screens": "~4.11.1",
+    "react-native-vector-icons": "^10.2.0",
+    "react-native-web": "0.20.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
   },
-  "private": true
+  "private": true,
+  "extra": {
+    "eas": {
+      "projectId": "434816e4-2ed6-4191-aeef-cf0b66af2b8c"
+    }
+  }
 }

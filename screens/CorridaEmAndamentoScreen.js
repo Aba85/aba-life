@@ -1,56 +1,125 @@
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, ActivityIndicator } from 'react-native';
-
-const CorridaEmAndamentoScreen = ({ navigation }) => {
-  const [distancia, setDistancia] = useState(5);
-  const [tempo, setTempo] = useState(10);
+const CorridaEmAndamentoScreen = () => {
+  const [corrida, setCorrida] = useState(null);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => {
-      setCarregando(false);
-    }, 1500);
+    const buscarCorridaAtiva = async () => {
+      const token = await AsyncStorage.getItem('token');
+
+      try {
+        const response = await fetch(
+          'https://api.abalife.com.br/corridas/ativa',
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        if (!response.ok) throw new Error('Erro ao buscar corrida');
+
+        const data = await response.json();
+        setCorrida(data);
+      } catch (error) {
+        Alert.alert('Erro', 'Não foi possível carregar a corrida em andamento.');
+      } finally {
+        setCarregando(false);
+      }
+    };
+
+    buscarCorridaAtiva();
   }, []);
 
-  const finalizarCorrida = () => {
-    navigation.navigate('Home');
-  };
+  if (carregando) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#007bff" />
+      </View>
+    );
+  }
+
+  if (!corrida) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.mensagem}>Nenhuma corrida em andamento.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Corrida em Andamento</Text>
-      {carregando ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <>
-          <Text style={styles.text}>Motorista a caminho...</Text>
-          <Text style={styles.text}>Distância estimada: {distancia} km</Text>
-          <Text style={styles.text}>Tempo estimado: {tempo} minutos</Text>
-          <Button title="Finalizar Corrida" onPress={finalizarCorrida} />
-        </>
-      )}
+      <Text style={styles.titulo}>Corrida em Andamento</Text>
+
+      <View style={styles.card}>
+        <Text style={styles.info}>Origem: {corrida.origem}</Text>
+        <Text style={styles.info}>Destino: {corrida.destino}</Text>
+        <Text style={styles.info}>Motorista: {corrida.motorista_nome}</Text>
+        <Text style={styles.info}>Veículo: {corrida.veiculo}</Text>
+        <Text style={styles.info}>Status: {corrida.status}</Text>
+        <Text style={styles.info}>
+          Iniciada em: {corrida.horario_inicio || 'Não informado'}
+        </Text>
+      </View>
+
+      <TouchableOpacity
+        style={styles.botaoCancelar}
+        onPress={() => Alert.alert('Aviso', 'Cancelar corrida não implementado ainda.')}
+      >
+        <Text style={styles.botaoTexto}>Cancelar Corrida</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 24,
-    justifyContent: 'center',
+    flex: 1,
     backgroundColor: '#fff',
   },
-  title: {
+  titulo: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: 'center',
   },
-  text: {
+  card: {
+    backgroundColor: '#f1f1f1',
+    padding: 18,
+    borderRadius: 10,
+    marginBottom: 24,
+  },
+  info: {
     fontSize: 16,
-    marginBottom: 12,
+    marginBottom: 6,
+  },
+  mensagem: {
+    fontSize: 16,
+    color: '#555',
     textAlign: 'center',
+  },
+  botaoCancelar: {
+    backgroundColor: '#dc3545',
+    padding: 14,
+    borderRadius: 8,
+  },
+  botaoTexto: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
 

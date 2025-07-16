@@ -1,65 +1,56 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import React, { useContext } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { AuthContext } from '../services/auth/AuthContext';
 
-export default function ConfiguracoesScreen() {
-  const navigation = useNavigation();
+const ConfiguracoesScreen = () => {
+  const { logout } = useContext(AuthContext);
 
-  const handleLogout = async () => {
+  const confirmarLogout = () => {
     Alert.alert(
-      'Sair do aplicativo',
+      'Sair do App',
       'Tem certeza que deseja sair?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Sair',
-          style: 'destructive',
-          onPress: async () => {
-            await AsyncStorage.removeItem('token');
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            });
-          },
-        },
-      ]
+        { text: 'Sair', onPress: logout, style: 'destructive' },
+      ],
+      { cancelable: true }
     );
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Configurações</Text>
+      <Text style={styles.titulo}>Configurações</Text>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutText}>Sair do aplicativo</Text>
+      <TouchableOpacity style={styles.botaoLogout} onPress={confirmarLogout}>
+        <Text style={styles.textoLogout}>Sair da Conta</Text>
       </TouchableOpacity>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    padding: 24,
-    justifyContent: 'center',
+    padding: 20,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 40,
+  titulo: {
+    fontSize: 22,
     fontWeight: 'bold',
-    textAlign: 'center',
+    marginBottom: 30,
   },
-  logoutButton: {
-    backgroundColor: '#e53935',
-    paddingVertical: 14,
-    borderRadius: 8,
+  botaoLogout: {
+    backgroundColor: '#FF3B30',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 20,
   },
-  logoutText: {
+  textoLogout: {
     color: '#fff',
-    textAlign: 'center',
-    fontWeight: 'bold',
     fontSize: 16,
+    fontWeight: 'bold',
   },
 });
+
+export default ConfiguracoesScreen;

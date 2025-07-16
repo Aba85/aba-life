@@ -1,32 +1,60 @@
 {
   "expo": {
     "name": "Aba Life Passageiro",
-    "slug": "aba-life-passageiro",
+    "slug": "aba_life_passageiro",
+    "scheme": "abalife",
     "version": "1.0.0",
-    "sdkVersion": "50.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "*/"
-    ],
     "updates": {
       "fallbackToCacheTimeout": 0
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.abalife.passageiro",
+      "buildNumber": "1.0.0"
     },
     "android": {
-      "package": "com.borbastyle.abalife",
-      "versionCode": 1
+      "package": "com.abalife.passageiro",
+      "versionCode": 1,
+      "permissions": [
+        "NOTIFICATIONS"
+      ],
+      "googleServicesFile": "./google-services.json",
+      "useNextNotificationsApi": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "notification": {
+        "icon": "./assets/notification-icon.png",
+        "color": "#1A73E8",
+        "channelId": "default"
+      }
     },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#1A73E8",
+          "sounds": []
+        }
+      ]
+    ],
+    "owner": "borba85",
     "extra": {
       "eas": {
-        "projectId": "94ce856c-bfa9-4aee-9d9d-45bd7397c74e"
+        "projectId": "f3b83ddd-5174-4650-8f90-ae7a4e32c71e"
       }
     }
   }

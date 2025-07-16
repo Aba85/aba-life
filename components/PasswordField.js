@@ -1,63 +1,43 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { TextInput, View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-const PasswordField = ({
-  label,
-  value,
-  onChangeText,
-  placeholder,
-}) => {
-  const [secure, setSecure] = useState(true);
+export default function PasswordField({ placeholder, value, onChangeText }) {
+  const [secureText, setSecureText] = useState(true);
 
   return (
     <View style={styles.container}>
-      {label && <Text style={styles.label}>{label}</Text>}
-      <View style={styles.inputWrapper}>
-        <TextInput
-          style={styles.input}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          secureTextEntry={secure}
-          autoCapitalize="none"
-          placeholderTextColor="#999"
-        />
-        <TouchableOpacity onPress={() => setSecure(!secure)}>
-          <Ionicons
-            name={secure ? 'eye-off' : 'eye'}
-            size={22}
-            color="#333"
-          />
-        </TouchableOpacity>
-      </View>
+      <TextInput
+        style={styles.input}
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        secureTextEntry={secureText}
+      />
+      <TouchableOpacity onPress={() => setSecureText(!secureText)} style={styles.button}>
+        <Text style={styles.buttonText}>{secureText ? '👁️' : '🙈'}</Text>
+      </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 6,
-  },
-  inputWrapper: {
     flexDirection: 'row',
-    alignItems: 'center',
-    borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    backgroundColor: '#fff',
-    height: 48,
+    borderColor: '#999',
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 15,
+    paddingRight: 10,
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    padding: 12,
+  },
+  button: {
+    padding: 4,
+  },
+  buttonText: {
+    fontSize: 18,
   },
 });
-
-export default PasswordField;

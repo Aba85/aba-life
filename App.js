@@ -1,52 +1,70 @@
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Platform, Alert } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import AppNavigator from './navigation/AppNavigator';
+import { AuthProvider } from './services/auth/AuthContext';
 
-import LoginScreen from './screens/LoginScreen';
-import CadastroScreen from './screens/CadastroScreen';
-import CadastroCompletoScreen from './screens/CadastroCompletoScreen';
-import HomeScreen from './screens/HomeScreen';
-import CorridaScreen from './screens/CorridaScreen';
-import RecompensasScreen from './screens/RecompensasScreen';
-import ConfiguracoesScreen from './screens/ConfiguracoesScreen';
-
-const Stack = createNativeStackNavigator();
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function App() {
-  const [isLogged, setIsLogged] = useState(null);
+  const [expoPushToken, setExpoPushToken] = useState('');
 
   useEffect(() => {
-    const verificarLogin = async () => {
-      const token = await AsyncStorage.getItem('token');
-      setIsLogged(!!token);
+    registerForPushNotificationsAsync().then(token => {
+      if (token) {
+        setExpoPushToken(token);
+        // Enviar para o backend aqui, se quiser associar ao usuário logado
+        console.log('Token push:', token);
+      }
+    });
+
+    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notificação recebida em primeiro plano:', notification);
+    });
+
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('Usuário interagiu com a notificação:', response);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
     };
-    verificarLogin();
   }, []);
 
-  if (isLogged === null) return null;
-
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {isLogged ? (
-            <>
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="Corrida" component={CorridaScreen} />
-              <Stack.Screen name="Recompensas" component={RecompensasScreen} />
-              <Stack.Screen name="Configuracoes" component={ConfiguracoesScreen} />
-            </>
-          ) : (
-            <>
-              <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen name="Cadastro" component={CadastroScreen} />
-              <Stack.Screen name="CadastroCompleto" component={CadastroCompletoScreen} />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <AuthProvider>
+      <AppNavigator />
+    </AuthProvider>
   );
 }
+
+async function registerForPushNotificationsAsync() {
+  if (!Device.isDevice) {
+    Alert.alert('Erro', 'Notificações só funcionam em dispositivos físicos.');
+    return null;
+  }
+
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  let finalStatus = existingStatus;
+
+  if (existingStatus !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+  }
+
+  if (finalStatus !== 'granted') {
+    Alert.alert('Permissão negada', 'Não foi possível obter permissão para notificações.');
+    return null;
+  }
+
+  const tokenData = await Notifications.getExpoPushTokenAsync();
+  return tokenData.data;
+} 

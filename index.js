@@ -1,4 +1,1 @@
-import { registerRootComponent } from 'expo';
-import App from './App';
-
-registerRootComponent(App);
+app.use('/usuarios', require('./routes/usuarios'));
