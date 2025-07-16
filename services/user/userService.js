@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://backend-abalife.onrender.com/usuarios/cadastrar'
+const API_URL = 'https://backend-abalife.onrender.com/usuarios';
 
 export const cadastrarUsuario = async (dados) => {
   try {
@@ -12,4 +12,4 @@ export const cadastrarUsuario = async (dados) => {
     }
     throw new Error('Erro ao cadastrar. Tente novamente mais tarde.');
   }
-};
+}; 
