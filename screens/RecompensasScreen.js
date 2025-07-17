@@ -1,63 +1,48 @@
+// caminho: screens/RecompensasScreen.js
+
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { buscarRecompensas, buscarCodigoIndicacao } from '../services/user/userService';
+import MenuInferior from '../components/MenuInferior';
 
 const RecompensasScreen = () => {
-  const [recompensas, setRecompensas] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [recompensas, setRecompensas] = useState([]);
+  const [codigo, setCodigo] = useState('');
+  const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    const buscarRecompensas = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        const response = await axios.get('https://back.abalife.com.br/recompensas/status', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setRecompensas(response.data);
-      } catch (error) {
-        console.error('Erro ao buscar recompensas:', error);
-      } finally {
-        setLoading(false);
-      }
+    const carregarDados = async () => {
+      const lista = await buscarRecompensas();
+      const codigoInd = await buscarCodigoIndicacao();
+      setRecompensas(lista || []);
+      setCodigo(codigoInd || '');
+      setCarregando(false);
     };
-
-    buscarRecompensas();
+    carregarDados();
   }, []);
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
-
-  if (!recompensas) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.mensagem}>Erro ao carregar recompensas.</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.titulo}>Recompensas</Text>
-
-      <Text style={styles.label}>Você está elegível?</Text>
-      <Text style={styles.valor}>{recompensas.ehElegivel ? '✅ Sim' : '❌ Não'}</Text>
-
-      <Text style={styles.label}>Valor por corrida dos indicados:</Text>
-      <Text style={styles.valor}>R$ {recompensas.valorPorCorrida.toFixed(2)}</Text>
-
-      <Text style={styles.label}>Total de corridas no mês:</Text>
-      <Text style={styles.valor}>{recompensas.totalCorridasUltimos30Dias}</Text>
-
-      <Text style={styles.label}>Total de indicados ativos:</Text>
-      <Text style={styles.valor}>{recompensas.totalIndicadosAtivos}</Text>
+      <Text style={styles.titulo}>Minhas Recompensas</Text>
+      {carregando ? (
+        <ActivityIndicator size="large" color="#0057D9" />
+      ) : (
+        <>
+          <Text style={styles.codigo}>Seu código de indicação: <Text style={styles.bold}>{codigo}</Text></Text>
+          <FlatList
+            data={recompensas}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.recompensa}>
+                <Text style={styles.texto}>
+                  {item.descricao} - R$ {item.valor.toFixed(2)}
+                </Text>
+              </View>
+            )}
+          />
+        </>
+      )}
+      <MenuInferior />
     </View>
   );
 };
@@ -65,26 +50,33 @@ const RecompensasScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     padding: 20,
+    backgroundColor: '#F5F9FF',
   },
   titulo: {
     fontSize: 22,
     fontWeight: 'bold',
+    color: '#0057D9',
     marginBottom: 20,
-  },
-  label: {
-    fontWeight: 'bold',
-    marginTop: 15,
-  },
-  valor: {
-    fontSize: 16,
-    marginTop: 5,
-  },
-  mensagem: {
     textAlign: 'center',
-    color: '#666',
+  },
+  codigo: {
     fontSize: 16,
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  bold: {
+    fontWeight: 'bold',
+  },
+  recompensa: {
+    backgroundColor: '#fff',
+    padding: 12,
+    marginBottom: 10,
+    borderRadius: 8,
+    elevation: 1,
+  },
+  texto: {
+    fontSize: 15,
   },
 });
 

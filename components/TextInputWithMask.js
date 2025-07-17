@@ -1,23 +1,25 @@
 import React from 'react';
 import { TextInput } from 'react-native';
-import MaskInput from 'react-native-mask-input';
+import { TextInputMask } from 'react-native-masked-text';
 
-const TextInputWithMask = ({ value, onChangeText, mask, ...props }) => {
+const TextInputWithMask = ({ type, options, value, onChangeText, placeholder, keyboardType }) => {
   return (
-    <MaskInput
+    <TextInputMask
+      type={type}
+      options={options}
       value={value}
       onChangeText={onChangeText}
-      mask={mask}
-      {...props}
+      placeholder={placeholder}
+      keyboardType={keyboardType}
       style={{
-        borderWidth: 1,
-        borderColor: '#999',
-        borderRadius: 6,
+        borderBottomWidth: 1,
+        borderColor: '#ccc',
         padding: 10,
-        marginBottom: 15,
+        marginBottom: 10,
       }}
     />
   );
 };
 
 export default TextInputWithMask;
+

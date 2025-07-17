@@ -1,29 +1,29 @@
+// caminho: screens/ConfiguracoesScreen.js
+
 import React, { useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { AuthContext } from '../services/auth/AuthContext';
+import MenuInferior from '../components/MenuInferior';
 
-const ConfiguracoesScreen = () => {
-  const { logout } = useContext(AuthContext);
+const ConfiguracoesScreen = ({ navigation }) => {
+  const { signOut } = useContext(AuthContext);
 
   const confirmarLogout = () => {
-    Alert.alert(
-      'Sair do App',
-      'Tem certeza que deseja sair?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Sair', onPress: logout, style: 'destructive' },
-      ],
-      { cancelable: true }
-    );
+    Alert.alert('Sair', 'Deseja realmente sair do aplicativo?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Sair', onPress: () => signOut() },
+    ]);
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Configurações</Text>
 
-      <TouchableOpacity style={styles.botaoLogout} onPress={confirmarLogout}>
-        <Text style={styles.textoLogout}>Sair da Conta</Text>
+      <TouchableOpacity style={styles.botao} onPress={confirmarLogout}>
+        <Text style={styles.botaoTexto}>Sair do Aplicativo</Text>
       </TouchableOpacity>
+
+      <MenuInferior />
     </View>
   );
 };
@@ -31,22 +31,24 @@ const ConfiguracoesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F5F9FF',
     padding: 20,
+    justifyContent: 'center',
   },
   titulo: {
     fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 30,
+    color: '#0057D9',
+    textAlign: 'center',
+    marginBottom: 40,
   },
-  botaoLogout: {
-    backgroundColor: '#FF3B30',
-    padding: 15,
+  botao: {
+    backgroundColor: '#cc0000',
+    padding: 14,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 20,
   },
-  textoLogout: {
+  botaoTexto: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',

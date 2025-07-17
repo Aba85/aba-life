@@ -1,50 +1,74 @@
-// services/auth/AuthContext.js
+// caminho: services/auth/AuthContext.js
+
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
-export const AuthContext = createContext({});
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [usuario, setUsuario] = useState(null);
   const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    async function loadStorage() {
+    const carregarDados = async () => {
       try {
-        const storagedUser = await AsyncStorage.getItem('@AbaLife:user');
-        const storagedToken = await AsyncStorage.getItem('@AbaLife:token');
-        if (storagedUser && storagedToken) {
-          setUser(JSON.parse(storagedUser));
-          setToken(storagedToken);
+        const tokenSalvo = await AsyncStorage.getItem('token');
+        const usuarioSalvo = await AsyncStorage.getItem('usuario');
+
+        if (tokenSalvo && usuarioSalvo) {
+          setToken(tokenSalvo);
+          setUsuario(JSON.parse(usuarioSalvo));
         }
       } catch (error) {
-        console.log('Erro carregando armazenamento:', error);
+        console.error('Erro ao carregar dados do usuário:', error);
       } finally {
-        setLoading(false);
+        setCarregando(false);
       }
-    }
-    loadStorage();
+    };
+
+    carregarDados();
   }, []);
 
-  const signIn = async (userData, userToken) => {
-    setUser(userData);
-    setToken(userToken);
+  const signIn = async (email, senha) => {
+    try {
+      const response = await axios.post(
+        'https://backend-abalife.onrender.com/usuarios/login',
+        { email, senha }
+      );
 
-    await AsyncStorage.setItem('@AbaLife:user', JSON.stringify(userData));
-    await AsyncStorage.setItem('@AbaLife:token', userToken);
+      const { token, usuario } = response.data;
+      setToken(token);
+      setUsuario(usuario);
+      await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('usuario', JSON.stringify(usuario));
+      return { sucesso: true };
+    } catch (error) {
+      console.error('Erro no login:', error);
+      return { sucesso: false, mensagem: 'Credenciais inválidas' };
+    }
   };
 
   const signOut = async () => {
-    setUser(null);
     setToken(null);
-    await AsyncStorage.removeItem('@AbaLife:user');
-    await AsyncStorage.removeItem('@AbaLife:token');
+    setUsuario(null);
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('usuario');
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{
+        usuario,
+        token,
+        carregando,
+        signIn,
+        signOut,
+        setUsuario,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-}; 
+};

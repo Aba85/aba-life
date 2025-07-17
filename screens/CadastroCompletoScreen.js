@@ -1,182 +1,167 @@
 import React, { useState } from 'react';
-import {
-  View,
-  TextInput,
-  Button,
-  Text,
-  StyleSheet,
-  Alert,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, StyleSheet } from 'react-native';
+import PasswordField from '../components/PasswordField';
+import TextInputWithMask from '../components/TextInputWithMask';
+import { validateCPF, validatePhone } from '../utils/validators/validators';
 import axios from 'axios';
 
-export default function CadastroCompletoScreen({ navigation }) {
+const CadastroCompletoScreen = ({ navigation }) => {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [cpf, setCpf] = useState('');
-  const [celular, setCelular] = useState('');
-  const [codigoIndicacao, setCodigoIndicacao] = useState('');
+  const [telefone, setTelefone] = useState('');
   const [senha, setSenha] = useState('');
-  const [confirmaSenha, setConfirmaSenha] = useState('');
-  const [showSenha, setShowSenha] = useState(false);
-  const [showConfirmaSenha, setShowConfirmaSenha] = useState(false);
+  const [confirmarSenha, setConfirmarSenha] = useState('');
 
-  const validarCPF = (cpf) => /^\d{11}$/.test(cpf);
+  const validarCampos = () => {
+    if (!nome || !email || !cpf || !telefone || !senha || !confirmarSenha) {
+      Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
+      return false;
+    }
+
+    if (!validateCPF(cpf)) {
+      Alert.alert('Erro', 'CPF inválido.');
+      return false;
+    }
+
+    if (!validatePhone(telefone)) {
+      Alert.alert('Erro', 'Número de telefone inválido.');
+      return false;
+    }
+
+    if (!validatePassword(senha)) {
+      Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
+      return false;
+    }
+
+    if (senha !== confirmarSenha) {
+      Alert.alert('Erro', 'As senhas não coincidem.');
+      return false;
+    }
+
+    return true;
+  };
 
   const handleCadastro = async () => {
-    if (
-      !nome.trim() || !email.trim() || !cpf.trim() ||
-      !celular.trim() || !senha.trim() || !confirmaSenha.trim()
-    ) {
-      Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
-      return;
-    }
-
-    if (!validarCPF(cpf)) {
-      Alert.alert('Erro', 'CPF inválido. Deve conter 11 dígitos numéricos.');
-      return;
-    }
-
-    if (senha.length < 6) {
-      Alert.alert('Erro', 'Senha deve ter no mínimo 6 caracteres.');
-      return;
-    }
-
-    if (senha !== confirmaSenha) {
-      Alert.alert('Erro', 'As senhas não coincidem.');
-      return;
-    }
+    if (!validarCampos()) return;
 
     try {
-      const response = await axios.post('https://backend.abalife.com.br/usuarios/cadastrar', {
+      const response = await axios.post('https://backend-abalife.onrender.com/usuarios/cadastrar', {
         nome,
         email,
         cpf,
-        celular,
-        codigoIndicacao: codigoIndicacao.trim() || null,
+        telefone,
         senha,
-        perfil: 'passageiro',
       });
 
-      if (response.status === 201) {
+      if (response.status === 201 || response.status === 200) {
         Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
         navigation.navigate('Login');
       } else {
-        Alert.alert('Erro', 'Erro ao cadastrar.');
+        Alert.alert('Erro', 'Erro ao cadastrar. Tente novamente.');
       }
     } catch (error) {
-      if (error.response) {
-        Alert.alert('Erro', error.response.data.erro || 'Erro no cadastro.');
-      } else {
-        Alert.alert('Erro', 'Erro de conexão. Tente novamente.');
-      }
+      console.error(error);
+      Alert.alert('Erro', 'Erro ao cadastrar. Verifique os dados e tente novamente.');
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Cadastro Completo</Text>
+      <Text style={styles.titulo}>Criar Conta</Text>
 
       <TextInput
-        placeholder="Nome completo"
         style={styles.input}
+        placeholder="Nome completo"
         value={nome}
         onChangeText={setNome}
       />
+
       <TextInput
-        placeholder="Email"
-        keyboardType="email-address"
-        autoCapitalize="none"
         style={styles.input}
+        placeholder="E-mail"
+        keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
       />
-      <TextInput
-        placeholder="CPF (apenas números)"
-        keyboardType="number-pad"
-        style={styles.input}
+
+      <TextInputWithMask
+        type={'cpf'}
         value={cpf}
         onChangeText={setCpf}
-        maxLength={11}
+        placeholder="CPF"
+        keyboardType="numeric"
       />
-      <TextInput
-        placeholder="Celular"
+
+      <TextInputWithMask
+        type={'cel-phone'}
+        options={{ maskType: 'BRL', withDDD: true, dddMask: '(99) ' }}
+        value={telefone}
+        onChangeText={setTelefone}
+        placeholder="Telefone"
         keyboardType="phone-pad"
-        style={styles.input}
-        value={celular}
-        onChangeText={setCelular}
-      />
-      <TextInput
-        placeholder="Código de indicação (opcional)"
-        style={styles.input}
-        value={codigoIndicacao}
-        onChangeText={setCodigoIndicacao}
       />
 
-      <View style={styles.passwordContainer}>
-        <TextInput
-          placeholder="Senha"
-          secureTextEntry={!showSenha}
-          style={[styles.input, { flex: 1 }]}
-          value={senha}
-          onChangeText={setSenha}
-        />
-        <TouchableOpacity
-          onPress={() => setShowSenha(!showSenha)}
-          style={styles.eyeButton}
-        >
-          <Text>{showSenha ? '🙈' : '👁️'}</Text>
-        </TouchableOpacity>
-      </View>
+      <PasswordField
+        value={senha}
+        onChangeText={setSenha}
+        placeholder="Senha"
+      />
 
-      <View style={styles.passwordContainer}>
-        <TextInput
-          placeholder="Confirme a senha"
-          secureTextEntry={!showConfirmaSenha}
-          style={[styles.input, { flex: 1 }]}
-          value={confirmaSenha}
-          onChangeText={setConfirmaSenha}
-        />
-        <TouchableOpacity
-          onPress={() => setShowConfirmaSenha(!showConfirmaSenha)}
-          style={styles.eyeButton}
-        >
-          <Text>{showConfirmaSenha ? '🙈' : '👁️'}</Text>
-        </TouchableOpacity>
-      </View>
+      <PasswordField
+        value={confirmarSenha}
+        onChangeText={setConfirmarSenha}
+        placeholder="Confirmar senha"
+      />
 
-      <Button title="Cadastrar" onPress={handleCadastro} />
+      <TouchableOpacity style={styles.botao} onPress={handleCadastro}>
+        <Text style={styles.botaoTexto}>Cadastrar</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.link}>Já tem uma conta? Entrar</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    paddingBottom: 40,
+    paddingTop: 40,
     backgroundColor: '#fff',
+    flexGrow: 1,
   },
-  title: {
+  titulo: {
     fontSize: 24,
-    marginBottom: 20,
     fontWeight: 'bold',
+    marginBottom: 20,
     textAlign: 'center',
-    color: '#004aad',
+    color: '#007AFF',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#004aad',
-    borderRadius: 5,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
     padding: 10,
-    marginBottom: 15,
+    marginBottom: 10,
   },
-  passwordContainer: {
-    flexDirection: 'row',
+  botao: {
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 8,
+    marginTop: 20,
     alignItems: 'center',
-    marginBottom: 15,
   },
-  eyeButton: {
-    padding: 10,
+  botaoTexto: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
-}); 
+  link: {
+    marginTop: 20,
+    textAlign: 'center',
+    color: '#007AFF',
+  },
+});
+
+export default CadastroCompletoScreen;
