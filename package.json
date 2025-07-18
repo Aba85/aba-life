@@ -1,46 +1,24 @@
 {
-  "name": "passageiro",
+  "name": "backend-abalife",
   "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "server.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "web": "expo start --web"
+    "start": "prisma generate && node server.js",
+    "dev": "nodemon server.js",
+    "migrate": "prisma migrate deploy",
+    "build": "echo \"No build step required\""
   },
   "dependencies": {
-    "@expo/metro-runtime": "~5.0.4",
-    "@react-native-async-storage/async-storage": "2.1.2",
-    "@react-native-community/datetimepicker": "8.4.1",
-    "@react-navigation/bottom-tabs": "^7.4.2",
-    "@react-navigation/native": "^7.1.14",
-    "@react-navigation/stack": "^7.4.2",
-    "axios": "^1.10.0",
-    "expo": "~53.0.0",
-    "expo-constants": "~17.1.7",
-    "expo-device": "^7.1.4",
-    "expo-image-picker": "~16.1.4",
-    "expo-notifications": "~0.31.4",
-    "expo-status-bar": "~2.2.3",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "react-native": "0.79.5",
-    "react-native-gesture-handler": "~2.24.0",
-    "react-native-masked-text": "^1.13.0",
-    "react-native-pager-view": "6.7.1",
-    "react-native-reanimated": "~3.17.4",
-    "react-native-safe-area-context": "5.4.0",
-    "react-native-screens": "~4.11.1",
-    "react-native-vector-icons": "^10.2.0",
-    "react-native-web": "0.20.0"
+    "@prisma/client": "^5.4.1",
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "pg": "^8.11.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
-  },
-  "private": true,
-  "extra": {
-    "eas": {
-      "projectId": "434816e4-2ed6-4191-aeef-cf0b66af2b8c"
-    }
+    "nodemon": "^2.0.22",
+    "prisma": "^5.4.1"
   }
 }

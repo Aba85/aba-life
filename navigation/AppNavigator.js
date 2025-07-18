@@ -3,6 +3,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { AuthContext } from '../services/auth/AuthContext';
 import LoginScreen from '../screens/LoginScreen';
@@ -27,9 +28,10 @@ const AppNavigator = () => {
     const verificar = async () => {
       if (usuario) {
         try {
+          const token = await AsyncStorage.getItem('token');
           const response = await fetch(`https://backend-abalife.onrender.com/usuarios/bloqueio`, {
             headers: {
-              Authorization: `Bearer ${await AsyncStorage.getItem('token')}`,
+              Authorization: `Bearer ${token}`,
             },
           });
           const data = await response.json();
@@ -54,7 +56,7 @@ const AppNavigator = () => {
         {!usuario ? (
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Cadastro" component={CadastroCompletoScreen} />
+            <Stack.Screen name="CadastroCompleto" component={CadastroCompletoScreen} />
           </>
         ) : bloqueado ? (
           <Stack.Screen name="Bloqueio" component={BloqueioScreen} />
