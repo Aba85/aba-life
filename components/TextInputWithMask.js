@@ -1,25 +1,35 @@
 import React from 'react';
-import { TextInput } from 'react-native';
-import { TextInputMask } from 'react-native-masked-text';
+import { StyleSheet } from 'react-native';
+import { MaskedTextInput } from 'react-native-mask-text';
 
-const TextInputWithMask = ({ type, options, value, onChangeText, placeholder, keyboardType }) => {
+const TextInputWithMask = ({
+  mask,
+  value,
+  onChangeText,
+  placeholder,
+  keyboardType,
+}) => {
   return (
-    <TextInputMask
-      type={type}
-      options={options}
+    <MaskedTextInput
+      mask={mask}
       value={value}
-      onChangeText={onChangeText}
+      onChangeText={(text, rawText) => {
+        onChangeText(text); // ou use rawText se quiser sem máscara
+      }}
       placeholder={placeholder}
       keyboardType={keyboardType}
-      style={{
-        borderBottomWidth: 1,
-        borderColor: '#ccc',
-        padding: 10,
-        marginBottom: 10,
-      }}
+      style={styles.input}
     />
   );
 };
 
-export default TextInputWithMask;
+const styles = StyleSheet.create({
+  input: {
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 10,
+  },
+});
 
+export default TextInputWithMask;
