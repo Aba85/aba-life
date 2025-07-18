@@ -13,6 +13,10 @@ const CadastroCompletoScreen = ({ navigation }) => {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
 
+  const validatePassword = (password) => {
+    return password.length >= 6;
+  };
+
   const validarCampos = () => {
     if (!nome || !email || !cpf || !telefone || !senha || !confirmarSenha) {
       Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
@@ -70,49 +74,58 @@ const CadastroCompletoScreen = ({ navigation }) => {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.titulo}>Criar Conta</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nome completo"
-        value={nome}
-        onChangeText={setNome}
-      />
+      <View style={styles.card}>
+        <TextInput
+          style={styles.input}
+          placeholder="Nome completo"
+          value={nome}
+          onChangeText={setNome}
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="E-mail"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="E-mail"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={email}
+          onChangeText={setEmail}
+        />
 
-      <TextInputWithMask
-        type={'cpf'}
-        value={cpf}
-        onChangeText={setCpf}
-        placeholder="CPF"
-        keyboardType="numeric"
-      />
+        <TextInputWithMask
+          type={'cpf'}
+          value={cpf}
+          onChangeText={setCpf}
+          placeholder="CPF"
+          keyboardType="numeric"
+          style={styles.input}
+        />
 
-      <TextInputWithMask
-        type={'cel-phone'}
-        options={{ maskType: 'BRL', withDDD: true, dddMask: '(99) ' }}
-        value={telefone}
-        onChangeText={setTelefone}
-        placeholder="Telefone"
-        keyboardType="phone-pad"
-      />
+        <TextInputWithMask
+          type={'cel-phone'}
+          options={{
+            maskType: 'BRL',
+            withDDD: true,
+            dddMask: '+55 (99) '
+          }}
+          value={telefone}
+          onChangeText={setTelefone}
+          placeholder="Telefone"
+          keyboardType="phone-pad"
+          style={styles.input}
+        />
 
-      <PasswordField
-        value={senha}
-        onChangeText={setSenha}
-        placeholder="Senha"
-      />
+        <PasswordField
+          value={senha}
+          onChangeText={setSenha}
+          placeholder="Senha"
+        />
 
-      <PasswordField
-        value={confirmarSenha}
-        onChangeText={setConfirmarSenha}
-        placeholder="Confirmar senha"
-      />
+        <PasswordField
+          value={confirmarSenha}
+          onChangeText={setConfirmarSenha}
+          placeholder="Confirmar senha"
+        />
+      </View>
 
       <TouchableOpacity style={styles.botao} onPress={handleCadastro}>
         <Text style={styles.botaoTexto}>Cadastrar</Text>
@@ -129,38 +142,55 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     paddingTop: 40,
-    backgroundColor: '#fff',
+    backgroundColor: '#F8F9FA',
     flexGrow: 1,
   },
   titulo: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 30,
     textAlign: 'center',
     color: '#007AFF',
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
   input: {
     borderBottomWidth: 1,
     borderColor: '#ccc',
-    padding: 10,
-    marginBottom: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    marginBottom: 15,
+    fontSize: 16,
   },
   botao: {
     backgroundColor: '#007AFF',
-    padding: 15,
+    padding: 16,
     borderRadius: 8,
-    marginTop: 20,
+    marginTop: 30,
     alignItems: 'center',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   botaoTexto: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 17,
   },
   link: {
-    marginTop: 20,
+    marginTop: 25,
     textAlign: 'center',
     color: '#007AFF',
+    fontSize: 15,
   },
 });
 
