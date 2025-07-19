@@ -4,6 +4,9 @@
       "eas": {
         "projectId": "1e7e95c7-bcf1-40fc-b106-0c790a647aa0"
       }
+    },
+    "android": {
+      "package": "com.borba85.passageiro"
     }
   }
 }
