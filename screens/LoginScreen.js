@@ -1,127 +1,92 @@
-import React, { useState, useContext } from 'react';
-import {
-  View,
-  TextInput,
-  Button,
-  Text,
-  StyleSheet,
-  Alert,
-  TouchableOpacity,
-} from 'react-native';
-import axios from 'axios';
-import { AuthContext } from '../services/auth/AuthContext';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../services/auth/AuthContext';
+import PasswordField from '../components/PasswordField';
 
-export default function LoginScreen({ navigation }) {
+const LoginScreen = () => {
+  const navigation = useNavigation();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [showSenha, setShowSenha] = useState(false);
-
-  const { signIn } = useContext(AuthContext);
 
   const handleLogin = async () => {
-    if (!email.trim() || !senha.trim()) {
-      Alert.alert('Erro', 'Email e senha são obrigatórios.');
+    if (!email || !senha) {
+      Alert.alert('Erro', 'Preencha todos os campos.');
       return;
     }
 
     try {
-      const response = await axios.post('https://abalife-backend.onrender.com/usuarios/login', {
-        email,
-        senha,
-      });
-
-      if (response.status === 200) {
-        const { token, usuario } = response.data;
-        await signIn(token, usuario);
-        // Navegar para a Home após login
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
-      } else {
-        Alert.alert('Erro', 'Erro ao fazer login.');
-      }
+      await login({ email, senha });
     } catch (error) {
-      if (error.response) {
-        Alert.alert('Erro', error.response.data.erro || 'Email ou senha incorretos.');
-      } else {
-        Alert.alert('Erro', 'Erro de conexão. Tente novamente.');
-      }
+      Alert.alert('Erro', 'Credenciais inválidas ou erro no servidor.');
+      console.error('Erro no login:', error);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>Entrar</Text>
 
       <TextInput
-        placeholder="Email"
-        keyboardType="email-address"
-        autoCapitalize="none"
         style={styles.input}
+        placeholder="E-mail"
         value={email}
         onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
 
-      <View style={styles.passwordContainer}>
-        <TextInput
-          placeholder="Senha"
-          secureTextEntry={!showSenha}
-          style={[styles.input, { flex: 1 }]}
-          value={senha}
-          onChangeText={setSenha}
-        />
-        <TouchableOpacity
-          onPress={() => setShowSenha(!showSenha)}
-          style={styles.eyeButton}
-          accessibilityLabel="Mostrar ou ocultar senha"
-        >
-          <Text>{showSenha ? '🙈' : '👁️'}</Text>
-        </TouchableOpacity>
-      </View>
+      <PasswordField label="Senha" value={senha} onChangeText={setSenha} />
 
-      <Button title="Entrar" onPress={handleLogin} />
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Entrar</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('CadastroCompleto')}>
-        <Text style={styles.link}>Não tem conta? Cadastre-se</Text>
+        <Text style={styles.link}>Criar conta</Text>
       </TouchableOpacity>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#fff',
-    justifyContent: 'center',
+    padding: 20,
+    paddingTop: 100
   },
   title: {
-    fontSize: 28,
-    marginBottom: 30,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#004aad',
-    textAlign: 'center',
+    marginBottom: 30,
+    alignSelf: 'center'
   },
   input: {
+    height: 50,
+    borderColor: '#ccc',
     borderWidth: 1,
-    borderColor: '#004aad',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 20,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginBottom: 15
   },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
+  button: {
+    backgroundColor: '#0057D9',
+    padding: 15,
+    borderRadius: 8
   },
-  eyeButton: {
-    padding: 10,
+  buttonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: 'bold'
   },
   link: {
+    color: '#0057D9',
     marginTop: 20,
-    color: '#004aad',
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-  },
-}); 
+    textAlign: 'center'
+  }
+});
+
+export default LoginScreen;
