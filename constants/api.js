@@ -1,1 +1,1 @@
-export const API_BASE_URL = 'https://aba-life-api.onrender.com';
+export const API_BASE_URL = 'https://backend-abalife.onrender.com';

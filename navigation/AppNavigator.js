@@ -1,79 +1,42 @@
-// caminho: navigation/AppNavigator.js
+// AppNavigator.js
 
-import React, { useContext, useEffect, useState } from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import { AuthContext } from '../services/auth/AuthContext';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { AuthProvider, useAuth } from '../services/auth/AuthContext';
 import LoginScreen from '../screens/LoginScreen';
 import CadastroCompletoScreen from '../screens/CadastroCompletoScreen';
 import HomeScreen from '../screens/HomeScreen';
-import SaldoScreen from '../screens/SaldoScreen';
-import RecompensasScreen from '../screens/RecompensasScreen';
-import PagamentoScreen from '../screens/PagamentoScreen';
-import IAAjudaScreen from '../screens/IAAjudaScreen';
-import BloqueioScreen from '../screens/BloqueioScreen';
-import ConfiguracoesScreen from '../screens/ConfiguracoesScreen';
-import ChamadaCorridaScreen from '../screens/ChamadaCorridaScreen';
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
-const AppNavigator = () => {
-  const { usuario, carregando } = useContext(AuthContext);
-  const [bloqueado, setBloqueado] = useState(false);
-  const [verificandoBloqueio, setVerificandoBloqueio] = useState(true);
+function MainNavigator() {
+  const { userToken, loading } = useAuth();
 
-  useEffect(() => {
-    const verificar = async () => {
-      if (usuario) {
-        try {
-          const token = await AsyncStorage.getItem('token');
-          const response = await fetch(`https://backend-abalife.onrender.com/usuarios/bloqueio`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          const data = await response.json();
-          setBloqueado(data.bloqueado);
-        } catch (error) {
-          console.error('Erro ao verificar bloqueio:', error);
-        }
-      }
-      setVerificandoBloqueio(false);
-    };
-
-    verificar();
-  }, [usuario]);
-
-  if (carregando || verificandoBloqueio) {
-    return null;
+  if (loading) {
+    return null; // ou uma tela de splash/loading
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!usuario ? (
-          <>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="CadastroCompleto" component={CadastroCompletoScreen} />
-          </>
-        ) : bloqueado ? (
-          <Stack.Screen name="Bloqueio" component={BloqueioScreen} />
-        ) : (
-          <>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="ChamadaCorrida" component={ChamadaCorridaScreen} />
-            <Stack.Screen name="Saldo" component={SaldoScreen} />
-            <Stack.Screen name="Recompensas" component={RecompensasScreen} />
-            <Stack.Screen name="Pagamento" component={PagamentoScreen} />
-            <Stack.Screen name="IAAjuda" component={IAAjudaScreen} />
-            <Stack.Screen name="Configuracoes" component={ConfiguracoesScreen} />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {userToken ? (
+        <Stack.Screen name="Home" component={HomeScreen} />
+      ) : (
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="CadastroCompleto" component={CadastroCompletoScreen} />
+        </>
+      )}
+    </Stack.Navigator>
   );
-};
+}
 
-export default AppNavigator;
+export default function AppNavigator() {
+  return (
+    <AuthProvider>
+      <NavigationContainer>
+        <MainNavigator />
+      </NavigationContainer>
+    </AuthProvider>
+  );
+}
