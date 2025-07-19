@@ -1,62 +1,49 @@
-// services/auth/AuthContext.js
-
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [userToken, setUserToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [usuario, setUsuario] = useState(null);
+  const [token, setToken] = useState(null);
+  const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    const loadToken = async () => {
+    const carregarDados = async () => {
       try {
-        const token = await AsyncStorage.getItem('userToken');
-        if (token) {
-          setUserToken(token);
+        const tokenSalvo = await AsyncStorage.getItem('token');
+        const usuarioSalvo = await AsyncStorage.getItem('usuario');
+        if (tokenSalvo && usuarioSalvo) {
+          setToken(tokenSalvo);
+          setUsuario(JSON.parse(usuarioSalvo));
         }
       } catch (e) {
-        console.log('Erro ao carregar token:', e);
+        console.log('Erro ao carregar dados do usuário:', e);
       } finally {
-        setLoading(false);
+        setCarregando(false);
       }
     };
 
-    loadToken();
+    carregarDados();
   }, []);
 
-  const login = async (email, password) => {
-    try {
-      const response = await axios.post('https://backend-abalife.onrender.com/usuarios/login', {
-        email,
-        password,
-      });
-
-      const token = response.data.token;
-      await AsyncStorage.setItem('userToken', token);
-      setUserToken(token);
-      return { success: true };
-    } catch (error) {
-      console.log('Erro ao fazer login:', error);
-      return {
-        success: false,
-        message: error?.response?.data?.message || 'Erro ao fazer login.',
-      };
-    }
+  const login = async (novoToken, dadosUsuario) => {
+    setToken(novoToken);
+    setUsuario(dadosUsuario);
+    await AsyncStorage.setItem('token', novoToken);
+    await AsyncStorage.setItem('usuario', JSON.stringify(dadosUsuario));
   };
 
   const logout = async () => {
-    await AsyncStorage.removeItem('userToken');
-    setUserToken(null);
+    setToken(null);
+    setUsuario(null);
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('usuario');
   };
 
   return (
-    <AuthContext.Provider value={{ userToken, login, logout, loading }}>
+    <AuthContext.Provider value={{ usuario, token, login, logout, carregando }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);
