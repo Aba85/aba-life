@@ -1,42 +1,29 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const PasswordField = ({ value, onChangeText, placeholder }) => {
   const [secureText, setSecureText] = useState(true);
 
+  const toggleSecureText = () => {
+    setSecureText(!secureText);
+  };
+
   return (
-    <View style={styles.container}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#ccc', borderRadius: 5, paddingHorizontal: 10, marginVertical: 5 }}>
       <TextInput
-        style={styles.input}
-        placeholder={placeholder}
-        secureTextEntry={secureText}
+        style={{ flex: 1, height: 50 }}
         value={value}
         onChangeText={onChangeText}
+        placeholder={placeholder}
+        secureTextEntry={secureText}
         autoCapitalize="none"
-        textContentType="password"
       />
-      <TouchableOpacity onPress={() => setSecureText(!secureText)} style={styles.icon}>
+      <TouchableOpacity onPress={toggleSecureText}>
         <Ionicons name={secureText ? 'eye-off' : 'eye'} size={24} color="gray" />
       </TouchableOpacity>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    marginVertical: 10,
-  },
-  input: {
-    flex: 1,
-    padding: 10,
-  },
-  icon: {
-    padding: 10,
-  },
-});
-
-export default PasswordField;
+export default PasswordField; 

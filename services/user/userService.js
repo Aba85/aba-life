@@ -1,45 +1,44 @@
-// apps/passageiro/services/userService.js
+const API_BASE_URL = ' https://backend-abalife.onrender.com/api';
 
-const API_URL = 'https://backend-abalife.onrender.com';
-
-export const cadastrarUsuario = async ({ nome, email, senha }) => {
+export async function cadastrarUsuario(dados) {
   try {
-    const response = await fetch(`${API_URL}/usuarios/cadastrar`, {
+    const response = await fetch(`${API_BASE_URL}/usuarios/cadastrar`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ nome, email, senha }),
+      body: JSON.stringify(dados),
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.erro || 'Erro ao cadastrar usuário');
+      const erro = await response.json();
+      throw new Error(erro.message || 'Erro ao cadastrar usuário');
     }
 
     return await response.json();
   } catch (error) {
     throw error;
   }
-};
+}
 
-export const loginUsuario = async ({ email, senha }) => {
+export async function loginUsuario(dados) {
   try {
-    const response = await fetch(`${API_URL}/usuarios/login`, {
+    const response = await fetch(`${API_BASE_URL}/usuarios/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, senha }),
+      body: JSON.stringify(dados),
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.erro || 'Erro ao fazer login');
+      const erro = await response.json();
+      throw new Error(erro.message || 'Erro ao fazer login');
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data.token;
   } catch (error) {
     throw error;
   }
-};
+} 

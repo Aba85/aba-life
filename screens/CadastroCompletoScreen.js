@@ -17,7 +17,7 @@ export default function CadastroScreen({ navigation }) {
     }
 
     try {
-      const response = await axios.post('https://backend-abalife.onrender.com/usuarios/cadastrar', {
+      const response = await axios.post(' https://backend-abalife.onrender.com/usuarios/cadastrar', {
         nome,
         email,
         senha,

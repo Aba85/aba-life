@@ -1,30 +1,37 @@
-import React, { useContext } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import LoginScreen from '../screens/LoginScreen';
-import CadastroScreen from '../screens/CadastroScreen';
-import HomeScreen from '../screens/HomeScreen';
-import { AuthContext } from '../services/auth/AuthContext';
+// apps/passageiro/navigation/AppNavigator.js
 
-const Stack = createStackNavigator();
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import LoginScreen from '../screens/LoginScreen';
+import CadastroCompletoScreen from '../screens/CadastroCompletoScreen';
+import HomeScreen from '../screens/HomeScreen';
+import { useAuth } from '../services/auth/AuthContext';
+
+const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-  const { usuario, carregando } = useContext(AuthContext);
+  const { usuario, carregando } = useAuth();
 
-  if (carregando) return null;
+  if (carregando) {
+    return null; // ou um SplashScreen se quiser
+  }
 
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {usuario ? (
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <>
+            <Stack.Screen name="Home" component={HomeScreen} />
+          </>
         ) : (
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Cadastro" component={CadastroScreen} />
+            <Stack.Screen name="CadastroCompleto" component={CadastroCompletoScreen} />
           </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+} 

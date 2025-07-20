@@ -1,24 +1,52 @@
-import React, { useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { AuthContext } from '../services/auth/AuthContext';
+// apps/passageiro/screens/HomeScreen.js
+
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useAuth } from '../services/auth/AuthContext';
 
 export default function HomeScreen() {
-  const { usuario, logout } = useContext(AuthContext);
+  const { usuario, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bem-vindo, {usuario?.nome}!</Text>
+      <Text style={styles.welcomeText}>
+        Olá, {usuario?.nome || 'Passageiro'}!
+      </Text>
 
-      <TouchableOpacity style={styles.button} onPress={logout}>
-        <Text style={styles.buttonText}>Sair</Text>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutButtonText}>Sair do app</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  title: { fontSize: 24, marginBottom: 20 },
-  button: { backgroundColor: '#dc3545', padding: 15, borderRadius: 8 },
-  buttonText: { color: '#fff', fontSize: 16 },
-});
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+    backgroundColor: '#f5f5f5',
+  },
+  welcomeText: {
+    fontSize: 22,
+    fontWeight: '600',
+    marginBottom: 32,
+    color: '#003366',
+  },
+  logoutButton: {
+    backgroundColor: '#003366',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 6,
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+}); 
