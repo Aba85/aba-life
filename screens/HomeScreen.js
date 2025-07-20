@@ -1,24 +1,49 @@
-// apps/passageiro/screens/HomeScreen.js
-
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useAuth } from '../services/auth/AuthContext';
+import React, { useContext } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { AuthContext } from '../services/auth/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
-  const { usuario, logout } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-  };
+  const { usuario, logout } = useContext(AuthContext);
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.welcomeText}>
-        Olá, {usuario?.nome || 'Passageiro'}!
-      </Text>
+      <Text style={styles.saudacao}>Olá, {usuario?.nome || 'Passageiro'}!</Text>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutButtonText}>Sair do app</Text>
+      <TouchableOpacity
+        style={styles.botao}
+        onPress={() => navigation.navigate('ChamadaCorrida')}
+      >
+        <Text style={styles.textoBotao}>Chamar Corrida</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.botao}
+        onPress={() => navigation.navigate('Historico')}
+      >
+        <Text style={styles.textoBotao}>Histórico de Corridas</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.botao}
+        onPress={() => navigation.navigate('Recompensas')}
+      >
+        <Text style={styles.textoBotao}>Minhas Recompensas</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.botao}
+        onPress={() => navigation.navigate('Configuracoes')}
+      >
+        <Text style={styles.textoBotao}>Configurações</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.botaoSair}
+        onPress={logout}
+      >
+        <Text style={styles.textoBotao}>Sair</Text>
       </TouchableOpacity>
     </View>
   );
@@ -27,26 +52,32 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#EAF5FF',
+    padding: 20,
     justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-    backgroundColor: '#f5f5f5',
   },
-  welcomeText: {
+  saudacao: {
     fontSize: 22,
-    fontWeight: '600',
-    marginBottom: 32,
-    color: '#003366',
+    fontWeight: 'bold',
+    marginBottom: 40,
+    textAlign: 'center',
+    color: '#1E3A8A',
   },
-  logoutButton: {
-    backgroundColor: '#003366',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 6,
+  botao: {
+    backgroundColor: '#1E3A8A',
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 15,
   },
-  logoutButtonText: {
-    color: '#fff',
+  botaoSair: {
+    backgroundColor: '#D32F2F',
+    padding: 15,
+    borderRadius: 12,
+    marginTop: 30,
+  },
+  textoBotao: {
+    color: '#FFF',
     fontSize: 16,
-    fontWeight: '500',
+    textAlign: 'center',
   },
-}); 
+});

@@ -1,24 +1,14 @@
 import React, { useState, useContext } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ScrollView,
-} from 'react-native';
-import { loginUsuario } from '../services/user/userService';
-import { AuthContext } from '../services/auth/AuthContext';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../services/auth/AuthContext';
 
-export default function LoginScreen() {
+const LoginScreen = () => {
   const navigation = useNavigation();
   const { login } = useContext(AuthContext);
 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !senha) {
@@ -27,106 +17,98 @@ export default function LoginScreen() {
     }
 
     try {
-      const dados = { email, senha };
-      const token = await loginUsuario(dados);
-      login(token);
+      const response = await fetch('https://backend-abalife.onrender.com/usuarios/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, senha }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        login(data.token, data.usuario); // salva no contexto
+        navigation.replace('Home'); // vai direto pra tela inicial
+      } else {
+        const data = await response.json();
+        Alert.alert('Erro', data.message || 'E-mail ou senha inválidos.');
+      }
     } catch (error) {
-      Alert.alert('Erro', error.message || 'Não foi possível fazer login.');
+      console.error(error);
+      Alert.alert('Erro de conexão', 'Não foi possível conectar com o servidor.');
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.titulo}>Entrar no Aba Life</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Entrar</Text>
 
       <TextInput
         style={styles.input}
         placeholder="E-mail"
         value={email}
         onChangeText={setEmail}
-        autoCapitalize="none"
         keyboardType="email-address"
+        autoCapitalize="none"
       />
 
-      <View style={styles.senhaContainer}>
-        <TextInput
-          style={styles.inputSenha}
-          placeholder="Senha"
-          value={senha}
-          onChangeText={setSenha}
-          secureTextEntry={!mostrarSenha}
-        />
-        <TouchableOpacity
-          style={styles.botaoOlho}
-          onPress={() => setMostrarSenha(!mostrarSenha)}
-        >
-          <Text>{mostrarSenha ? '🙈' : '👁️'}</Text>
-        </TouchableOpacity>
-      </View>
+      <TextInput
+        style={styles.input}
+        placeholder="Senha"
+        value={senha}
+        onChangeText={setSenha}
+        secureTextEntry
+      />
 
-      <TouchableOpacity style={styles.botao} onPress={handleLogin}>
-        <Text style={styles.botaoTexto}>Entrar</Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Cadastro')}>
-        <Text style={styles.link}>Criar Conta</Text>
+        <Text style={styles.linkText}>Criar conta</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
-}
+};
+
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     padding: 20,
-    paddingTop: 80,
+    justifyContent: 'center',
     backgroundColor: '#fff',
-    flexGrow: 1,
   },
-  titulo: {
-    fontSize: 22,
+  title: {
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 24,
-    textAlign: 'center',
-    color: '#2F80ED',
+    color: '#005BA1',
+    marginBottom: 30,
+    alignSelf: 'center',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#CCC',
+    borderColor: '#ccc',
     borderRadius: 8,
     padding: 12,
-    marginBottom: 16,
+    marginBottom: 15,
   },
-  senhaContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#CCC',
+  button: {
+    backgroundColor: '#005BA1',
+    padding: 15,
     borderRadius: 8,
-    marginBottom: 16,
-    paddingRight: 12,
-  },
-  inputSenha: {
-    flex: 1,
-    padding: 12,
-  },
-  botaoOlho: {
-    padding: 4,
-  },
-  botao: {
-    backgroundColor: '#2F80ED',
-    borderRadius: 8,
-    paddingVertical: 14,
     alignItems: 'center',
+    marginTop: 5,
   },
-  botaoTexto: {
-    color: '#FFF',
+  buttonText: {
+    color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
   },
-  link: {
-    color: '#2F80ED',
-    textAlign: 'center',
+  linkText: {
     marginTop: 20,
-    fontSize: 15,
+    color: '#005BA1',
+    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
-}); 
+});
