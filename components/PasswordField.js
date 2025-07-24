@@ -1,27 +1,48 @@
+// apps/passageiro/components/PasswordField.js
+
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const PasswordField = ({ value, onChangeText, placeholder, style, ...props }) => {
-  const [secure, setSecure] = useState(true);
+const PasswordField = ({ label, value, onChangeText }) => {
+  const [visivel, setVisivel] = useState(false);
 
   return (
-    <View style={[{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderColor: '#ccc' }, style]}>
-      <TextInput
-        style={{ flex: 1, padding: 10 }}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        secureTextEntry={secure}
-        {...props}
-      />
-      <TouchableOpacity onPress={() => setSecure(!secure)} style={{ paddingHorizontal: 10 }}>
-        <Ionicons name={secure ? 'eye-off' : 'eye'} size={20} color="#888" />
-      </TouchableOpacity>
+    <View style={styles.container}>
+      {label && <Text style={styles.label}>{label}</Text>}
+      <View style={styles.campoSenha}>
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={onChangeText}
+          secureTextEntry={!visivel}
+          placeholder="Digite a senha"
+        />
+        <TouchableOpacity onPress={() => setVisivel(!visivel)}>
+          <Ionicons
+            name={visivel ? 'eye-off' : 'eye'}
+            size={22}
+            color="#003087"
+            style={styles.icone}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 export default PasswordField;
 
-
+const styles = StyleSheet.create({
+  container: { marginBottom: 15 },
+  label: { marginBottom: 5, color: '#003087', fontWeight: 'bold' },
+  campoSenha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+  },
+  input: { flex: 1, padding: 12, fontSize: 16 },
+  icone: { marginLeft: 8 },
+});

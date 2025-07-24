@@ -1,116 +1,110 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { cadastrarUsuario } from '../services/user/userService';
+import validarCPF from '../utils/validators/validators';
+import PasswordField from '../components/PasswordField';
 
-const CadastroCompletoScreen = () => {
-  const navigation = useNavigation();
-
+const CadastroCompletoScreen = ({ navigation }) => {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [confirmarSenha, setConfirmarSenha] = useState('');
   const [cpf, setCpf] = useState('');
   const [celular, setCelular] = useState('');
   const [endereco, setEndereco] = useState('');
+  const [senha, setSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [erro, setErro] = useState('');
 
   const handleCadastro = async () => {
-    if (senha !== confirmarSenha) {
-      Alert.alert('Erro', 'As senhas não coincidem');
+    if (!nome || !email || !cpf || !celular || !endereco || !senha || !confirmarSenha) {
+      setErro('Preencha todos os campos obrigatórios.');
       return;
     }
 
-    const payload = {
-      nome,
-      email,
-      senha,
-      cpf,
-      celular,
-      endereco,
-    };
+    if (!validarCPF(cpf)) {
+      setErro('CPF inválido.');
+      return;
+    }
+
+    if (senha.length < 6) {
+      setErro('A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+
+    if (senha !== confirmarSenha) {
+      setErro('As senhas não coincidem.');
+      return;
+    }
 
     try {
-      const response = await fetch('https://backend-abalife.onrender.com/passageiros', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+      const dados = {
+        nome,
+        email,
+        senha,
+        cpf,
+        celular: '+55' + celular.replace(/\D/g, ''),
+        endereco,
+      };
 
-      if (response.ok) {
-        Alert.alert('Cadastro realizado com sucesso!');
-        navigation.navigate('Login');
-      } else {
-        const data = await response.json();
-        Alert.alert('Erro ao cadastrar', data.message || 'Tente novamente.');
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Erro de conexão', 'Não foi possível conectar com o servidor.');
+      await cadastrarUsuario(dados);
+      Alert.alert('Cadastro realizado com sucesso!', 'Você já pode fazer login.');
+      navigation.navigate('Login');
+    } catch (err) {
+      setErro(err?.erro || 'Erro ao cadastrar. Tente novamente.');
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Cadastro</Text>
+      <Text style={styles.titulo}>Criar Conta</Text>
 
       <TextInput
-        style={styles.input}
         placeholder="Nome completo"
         value={nome}
         onChangeText={setNome}
-      />
-
-      <TextInput
         style={styles.input}
+      />
+      <TextInput
         placeholder="E-mail"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      <TextInput
         style={styles.input}
-        placeholder="Senha"
-        value={senha}
-        onChangeText={setSenha}
-        secureTextEntry
       />
-
       <TextInput
-        style={styles.input}
-        placeholder="Confirmar senha"
-        value={confirmarSenha}
-        onChangeText={setConfirmarSenha}
-        secureTextEntry
-      />
-
-      <TextInput
-        style={styles.input}
         placeholder="CPF"
         value={cpf}
         onChangeText={setCpf}
         keyboardType="numeric"
-      />
-
-      <TextInput
         style={styles.input}
-        placeholder="Celular (com DDD)"
+      />
+      <TextInput
+        placeholder="Celular (somente números)"
         value={celular}
         onChangeText={setCelular}
         keyboardType="phone-pad"
-      />
-
-      <TextInput
         style={styles.input}
-        placeholder="Endereço"
+      />
+      <TextInput
+        placeholder="Endereço completo"
         value={endereco}
         onChangeText={setEndereco}
+        style={styles.input}
+      />
+      <PasswordField
+        label="Senha"
+        value={senha}
+        onChangeText={setSenha}
+      />
+      <PasswordField
+        label="Confirmar Senha"
+        value={confirmarSenha}
+        onChangeText={setConfirmarSenha}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleCadastro}>
-        <Text style={styles.buttonText}>Cadastrar</Text>
+      {erro ? <Text style={styles.erro}>{erro}</Text> : null}
+
+      <TouchableOpacity style={styles.botao} onPress={handleCadastro}>
+        <Text style={styles.textoBotao}>Finalizar Cadastro</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -120,34 +114,38 @@ export default CadastroCompletoScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
     padding: 20,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
+    paddingBottom: 40,
+    backgroundColor: '#f0f4ff',
   },
-  title: {
-    fontSize: 26,
+  titulo: {
+    fontSize: 24,
     fontWeight: 'bold',
+    color: '#003087',
     marginBottom: 20,
-    alignSelf: 'center',
-    color: '#005BA1',
+    textAlign: 'center',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
+    backgroundColor: '#fff',
     padding: 12,
+    borderRadius: 8,
     marginBottom: 15,
+    fontSize: 16,
   },
-  button: {
-    backgroundColor: '#005BA1',
+  botao: {
+    backgroundColor: '#003087',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 10,
   },
-  buttonText: {
+  textoBotao: {
     color: '#fff',
+    fontWeight: 'bold',
     fontSize: 16,
+  },
+  erro: {
+    color: 'red',
+    textAlign: 'center',
+    marginBottom: 10,
   },
 });

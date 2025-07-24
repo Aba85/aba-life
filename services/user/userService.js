@@ -1,31 +1,33 @@
-const API_URL = 'https://backend-abalife.onrender.com'; // Substitua pela URL real do seu backend, se for diferente
+// apps/passageiro/services/user/userService.js
 
-export const loginUsuario = async (email, senha) => {
-  const response = await fetch(`${API_URL}/usuarios/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, senha }),
-  });
+import axios from 'axios';
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error?.mensagem || 'Erro ao fazer login.');
-  }
-
-  return await response.json();
-};
+const API_BASE_URL = 'https://backend-abalife.onrender.com';
 
 export const cadastrarUsuario = async (dados) => {
-  const response = await fetch(`${API_URL}/usuarios/cadastro`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(dados),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error?.mensagem || 'Erro ao cadastrar.');
+  try {
+    const response = await axios.post(`${API_BASE_URL}/usuarios/cadastrar`, {
+      nome: dados.nome,
+      email: dados.email,
+      senha: dados.senha,
+      cpf: dados.cpf,
+      celular: dados.celular,
+      endereco: dados.endereco,
+    });
+    return response.data;
+  } catch (error) {
+    throw error?.response?.data || { erro: 'Erro ao cadastrar usuário' };
   }
+};
 
-  return await response.json();
+export const loginUsuario = async (email, senha) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/usuarios/login`, {
+      email,
+      senha,
+    });
+    return response.data;
+  } catch (error) {
+    throw error?.response?.data || { erro: 'Erro ao fazer login' };
+  }
 };

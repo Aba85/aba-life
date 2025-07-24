@@ -1,5 +1,8 @@
+// apps/passageiro/services/auth/AuthContext.js
+
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { loginUsuario } from '../user/userService';
 
 export const AuthContext = createContext();
 
@@ -10,36 +13,30 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const carregarDados = async () => {
-      try {
-        const tokenSalvo = await AsyncStorage.getItem('@token');
-        const usuarioSalvo = await AsyncStorage.getItem('@usuario');
-
-        if (tokenSalvo && usuarioSalvo) {
-          setToken(tokenSalvo);
-          setUsuario(JSON.parse(usuarioSalvo));
-        }
-      } catch (error) {
-        console.log('Erro ao carregar dados salvos:', error);
-      } finally {
-        setCarregando(false);
+      const tokenSalvo = await AsyncStorage.getItem('token');
+      const usuarioSalvo = await AsyncStorage.getItem('usuario');
+      if (tokenSalvo && usuarioSalvo) {
+        setToken(tokenSalvo);
+        setUsuario(JSON.parse(usuarioSalvo));
       }
+      setCarregando(false);
     };
-
     carregarDados();
   }, []);
 
-  const login = async (novoToken, dadosUsuario) => {
-    setToken(novoToken);
-    setUsuario(dadosUsuario);
-    await AsyncStorage.setItem('@token', novoToken);
-    await AsyncStorage.setItem('@usuario', JSON.stringify(dadosUsuario));
+  const login = async (email, senha) => {
+    const data = await loginUsuario(email, senha);
+    setToken(data.token);
+    setUsuario(data.usuario);
+    await AsyncStorage.setItem('token', data.token);
+    await AsyncStorage.setItem('usuario', JSON.stringify(data.usuario));
   };
 
   const logout = async () => {
     setToken(null);
     setUsuario(null);
-    await AsyncStorage.removeItem('@token');
-    await AsyncStorage.removeItem('@usuario');
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('usuario');
   };
 
   return (

@@ -1,12 +1,29 @@
 {
   "expo": {
-    "extra": {
-      "eas": {
-        "projectId": "1e7e95c7-bcf1-40fc-b106-0c790a647aa0"
-      }
+    "name": "Aba Life Passageiro",
+    "slug": "aba-life-passageiro",
+    "scheme": "abalife",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
     },
     "android": {
-      "package": "com.borba85.passageiro"
+      "package": "com.abalife.passageiro",
+      "versionCode": 1
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     }
   }
 }

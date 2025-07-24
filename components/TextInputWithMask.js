@@ -1,35 +1,31 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
-import { MaskedTextInput } from 'react-native-mask-text';
+// apps/passageiro/components/TextInputWithMask.js
 
-const TextInputWithMask = ({
-  mask,
-  value,
-  onChangeText,
-  placeholder,
-  keyboardType,
-}) => {
+import React from 'react';
+import { TextInput, StyleSheet } from 'react-native';
+import { TextInputMask } from 'react-native-masked-text';
+
+const TextInputWithMask = ({ type, options, value, onChangeText, placeholder }) => {
   return (
-    <MaskedTextInput
-      mask={mask}
+    <TextInputMask
+      type={type}
+      options={options}
       value={value}
-      onChangeText={(text, rawText) => {
-        onChangeText(text); // ou use rawText se quiser sem máscara
-      }}
+      onChangeText={onChangeText}
       placeholder={placeholder}
-      keyboardType={keyboardType}
       style={styles.input}
+      keyboardType="numeric"
     />
   );
 };
 
+export default TextInputWithMask;
+
 const styles = StyleSheet.create({
   input: {
-    borderBottomWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    marginBottom: 10,
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 15,
+    fontSize: 16,
   },
 });
-
-export default TextInputWithMask;

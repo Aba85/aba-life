@@ -1,71 +1,51 @@
+// apps/passageiro/screens/LoginScreen.js
+
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { AuthContext } from '../services/auth/AuthContext';
 
-const LoginScreen = () => {
-  const navigation = useNavigation();
+const LoginScreen = ({ navigation }) => {
   const { login } = useContext(AuthContext);
-
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [erro, setErro] = useState('');
+  const [carregando, setCarregando] = useState(false);
 
   const handleLogin = async () => {
-    if (!email || !senha) {
-      Alert.alert('Erro', 'Preencha todos os campos.');
-      return;
-    }
-
+    setCarregando(true);
+    setErro('');
     try {
-      const response = await fetch('https://backend-abalife.onrender.com/usuarios/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, senha }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        login(data.token, data.usuario); // salva no contexto
-        navigation.replace('Home'); // vai direto pra tela inicial
-      } else {
-        const data = await response.json();
-        Alert.alert('Erro', data.message || 'E-mail ou senha inválidos.');
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Erro de conexão', 'Não foi possível conectar com o servidor.');
+      await login(email, senha);
+    } catch (err) {
+      setErro(err?.erro || 'Erro ao fazer login');
+    } finally {
+      setCarregando(false);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Entrar</Text>
-
+      <Text style={styles.titulo}>Aba Life - Passageiro</Text>
       <TextInput
-        style={styles.input}
         placeholder="E-mail"
         value={email}
         onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      <TextInput
         style={styles.input}
+        keyboardType="email-address"
+      />
+      <TextInput
         placeholder="Senha"
         value={senha}
         onChangeText={setSenha}
+        style={styles.input}
         secureTextEntry
       />
-
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Entrar</Text>
+      {erro ? <Text style={styles.erro}>{erro}</Text> : null}
+      <TouchableOpacity style={styles.botao} onPress={handleLogin} disabled={carregando}>
+        {carregando ? <ActivityIndicator color="#fff" /> : <Text style={styles.textoBotao}>Entrar</Text>}
       </TouchableOpacity>
-
       <TouchableOpacity onPress={() => navigation.navigate('Cadastro')}>
-        <Text style={styles.linkText}>Criar conta</Text>
+        <Text style={styles.link}>Criar Conta</Text>
       </TouchableOpacity>
     </View>
   );
@@ -74,41 +54,11 @@ const LoginScreen = () => {
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#005BA1',
-    marginBottom: 30,
-    alignSelf: 'center',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 15,
-  },
-  button: {
-    backgroundColor: '#005BA1',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  linkText: {
-    marginTop: 20,
-    color: '#005BA1',
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-  },
+  container: { flex: 1, padding: 20, justifyContent: 'center', backgroundColor: '#f0f4ff' },
+  titulo: { fontSize: 24, fontWeight: 'bold', marginBottom: 30, textAlign: 'center', color: '#003087' },
+  input: { backgroundColor: '#fff', padding: 12, borderRadius: 8, marginBottom: 15, fontSize: 16 },
+  botao: { backgroundColor: '#003087', padding: 15, borderRadius: 8, alignItems: 'center' },
+  textoBotao: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  link: { marginTop: 20, textAlign: 'center', color: '#003087', fontWeight: 'bold' },
+  erro: { color: 'red', textAlign: 'center', marginBottom: 10 },
 });

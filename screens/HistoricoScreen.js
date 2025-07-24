@@ -1,81 +1,55 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import { getHistorico } from '../services/corridas/corridaService';
+import { AuthContext } from '../services/auth/AuthContext';
 
 const HistoricoScreen = () => {
-  const [historico, setHistorico] = useState([]);
+  const { token } = useContext(AuthContext);
+  const [corridas, setCorridas] = useState([]);
 
   useEffect(() => {
     const carregarHistorico = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
-        const response = await axios.get('https://back.abalife.com.br/corridas/historico', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setHistorico(response.data);
+        const data = await getHistorico(token);
+        setCorridas(data || []);
       } catch (error) {
-        console.error('Erro ao carregar histórico:', error);
+        console.log('Erro ao carregar histórico:', error);
       }
     };
 
     carregarHistorico();
   }, []);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.item}>
-      <Text style={styles.label}>Origem:</Text>
-      <Text>{item.origem}</Text>
-      <Text style={styles.label}>Destino:</Text>
-      <Text>{item.destino}</Text>
-      <Text style={styles.label}>Data:</Text>
-      <Text>{new Date(item.data).toLocaleString()}</Text>
-      <Text style={styles.label}>Valor:</Text>
-      <Text>R$ {item.valor.toFixed(2)}</Text>
-    </View>
-  );
-
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Histórico de Corridas</Text>
       <FlatList
-        data={historico}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-        ListEmptyComponent={<Text style={styles.vazio}>Nenhuma corrida encontrada.</Text>}
+        data={corridas}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <Text style={styles.texto}>De: {item.embarque}</Text>
+            <Text style={styles.texto}>Para: {item.destino}</Text>
+            <Text style={styles.texto}>Status: {item.status}</Text>
+          </View>
+        )}
+        ListEmptyComponent={<Text style={styles.texto}>Nenhuma corrida encontrada.</Text>}
       />
     </View>
   );
 };
 
+export default HistoricoScreen;
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  titulo: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
+  container: { flex: 1, padding: 20, backgroundColor: '#f0f4ff' },
+  titulo: { fontSize: 22, fontWeight: 'bold', color: '#003087', marginBottom: 10 },
   item: {
-    backgroundColor: '#F3F3F3',
+    backgroundColor: '#fff',
     padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
+    borderRadius: 8,
+    marginBottom: 10,
   },
-  label: {
-    fontWeight: 'bold',
-    marginTop: 5,
-  },
-  vazio: {
-    textAlign: 'center',
-    marginTop: 50,
-    color: '#666',
-  },
+  texto: { fontSize: 16, color: '#333' },
 });
 
-export default HistoricoScreen;

@@ -1,27 +1,19 @@
-import api from '../api';
+// apps/passageiro/services/corrida/corridaService.js
 
-export const chamarCorrida = async (dados, token) => {
-  try {
-    const response = await api.post('/corridas/chamar', dados, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+import axios from 'axios';
+
+const API_BASE_URL = 'https://backend-abalife.onrender.com';
+
+export const chamarCorrida = async (token, dadosCorrida) => {
+  const response = await axios.post(`${API_BASE_URL}/corridas/chamar`, dadosCorrida, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
 };
 
-export const cancelarCorrida = async (corridaId, token) => {
-  try {
-    const response = await api.post(`/corridas/${corridaId}/cancelar`, {}, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+export const getHistorico = async (token) => {
+  const response = await axios.get(`${API_BASE_URL}/corridas/historico`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
 };

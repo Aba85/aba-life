@@ -1,7 +1,9 @@
+// apps/passageiro/App.js
+
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { AuthProvider } from './services/auth/AuthContext';
 import AppNavigator from './navigation/AppNavigator';
+import { AuthProvider } from './services/auth/AuthContext';
 
 export default function App() {
   return (

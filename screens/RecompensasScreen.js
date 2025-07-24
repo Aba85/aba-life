@@ -1,83 +1,41 @@
-// caminho: screens/RecompensasScreen.js
-
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
-import { buscarRecompensas, buscarCodigoIndicacao } from '../services/user/userService';
-import MenuInferior from '../components/MenuInferior';
+import React, { useEffect, useState, useContext } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { getRecompensas } from '../services/recompensas/recompensaService';
+import { AuthContext } from '../services/auth/AuthContext';
 
 const RecompensasScreen = () => {
-  const [recompensas, setRecompensas] = useState([]);
-  const [codigo, setCodigo] = useState('');
-  const [carregando, setCarregando] = useState(true);
+  const { token } = useContext(AuthContext);
+  const [recompensa, setRecompensa] = useState(null);
 
   useEffect(() => {
-    const carregarDados = async () => {
-      const lista = await buscarRecompensas();
-      const codigoInd = await buscarCodigoIndicacao();
-      setRecompensas(lista || []);
-      setCodigo(codigoInd || '');
-      setCarregando(false);
+    const carregarRecompensas = async () => {
+      try {
+        const data = await getRecompensas(token);
+        setRecompensa(data);
+      } catch (error) {
+        console.log('Erro ao carregar recompensas:', error);
+      }
     };
-    carregarDados();
+
+    carregarRecompensas();
   }, []);
 
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Minhas Recompensas</Text>
-      {carregando ? (
-        <ActivityIndicator size="large" color="#0057D9" />
+      {recompensa ? (
+        <Text style={styles.valor}>R$ {recompensa.total?.toFixed(2) || '0,00'}</Text>
       ) : (
-        <>
-          <Text style={styles.codigo}>Seu código de indicação: <Text style={styles.bold}>{codigo}</Text></Text>
-          <FlatList
-            data={recompensas}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.recompensa}>
-                <Text style={styles.texto}>
-                  {item.descricao} - R$ {item.valor.toFixed(2)}
-                </Text>
-              </View>
-            )}
-          />
-        </>
+        <Text style={styles.valor}>R$ 0,00</Text>
       )}
-      <MenuInferior />
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#F5F9FF',
-  },
-  titulo: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#0057D9',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  codigo: {
-    fontSize: 16,
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  bold: {
-    fontWeight: 'bold',
-  },
-  recompensa: {
-    backgroundColor: '#fff',
-    padding: 12,
-    marginBottom: 10,
-    borderRadius: 8,
-    elevation: 1,
-  },
-  texto: {
-    fontSize: 15,
-  },
-});
-
 export default RecompensasScreen;
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f4ff' },
+  titulo: { fontSize: 22, fontWeight: 'bold', color: '#003087', marginBottom: 10 },
+  valor: { fontSize: 28, fontWeight: 'bold', color: '#28a745' },
+});
